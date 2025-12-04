@@ -77,12 +77,12 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 
 2.1. Generate Spring Boot project to Spring Initializer
 ~ https://start.spring.io/
-> Project : Maven Project 
-> Language : Java
-> Spring Boot version : 4.0.0
-> Packaging : Jar
-> Configuration : Properties
-> Dependencies : Spring Web
+> Project : Maven Project  
+> Language : Java  
+> Spring Boot version : 4.0.0  
+> Packaging : Jar  
+> Configuration : Properties  
+> Dependencies : Spring Web  
 
 2.2. Server run & test
 ~ http://localhost:8080/hello
