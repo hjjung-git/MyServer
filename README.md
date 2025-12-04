@@ -17,9 +17,8 @@
 컴퓨터공학과 전공자로서 배운 이론을 실제 서비스에 적용하고, NCS에서 제시하는 5가지 핵심 직무의 역할을 이해하며 통합적인 시각을 기르는 데 중점을 두었다.
 
 ### Main Features
-- ㅁㅁ
-- ㅁㅁ
-- ㅁㅁ
+- 서버 구축 및 관리
+- 포트폴리오 저장
 
 ---
 
@@ -74,6 +73,20 @@
 : Maven 이나 Gradle 은 프로젝트에 필요한 라이브버리를 자동으로 다운로드하고 관리해주는 도구이다.
 Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 
+#### 2. First Initializing Spring Boot
+
+2.1. Generate Spring Boot project to Spring Initializer
+: https://start.spring.io/
+> Project : Maven Project 
+> Language : Java
+> Spring Boot version : 4.0.0
+> Packaging : Jar
+> Configuration : Properties
+> Dependencies : Spring Web
+
+2.2. Server run & test
+: http://localhost:8080/hello
+
 ---
 
 ## Getting Started
@@ -82,7 +95,7 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 
 ### Requirements
 - JDK 21
-- Maven 3.8 이상
+- Maven 4.0.0
 - Git
 
 ### Install & Run
