@@ -40,7 +40,7 @@
 
 - **Backend**
 	- `Java 21`
-	- `Spring Boot 3.x`
+	- `Spring Boot 4.0.0`
 	- `Spring Data JPA`
 - **Frontend**
 	- `HTML5`, `CSS3`
@@ -76,7 +76,7 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 #### 2. First Initializing Spring Boot
 
 2.1. Generate Spring Boot project to Spring Initializer
-: https://start.spring.io/
+~ https://start.spring.io/
 > Project : Maven Project 
 > Language : Java
 > Spring Boot version : 4.0.0
@@ -85,7 +85,7 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 > Dependencies : Spring Web
 
 2.2. Server run & test
-: http://localhost:8080/hello
+~ http://localhost:8080/hello
 
 ---
 
@@ -95,7 +95,7 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 
 ### Requirements
 - JDK 21
-- Maven 4.0.0
+- Maven 3.9.11
 - Git
 
 ### Install & Run
