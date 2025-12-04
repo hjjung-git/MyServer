@@ -40,7 +40,7 @@
 ## Tech Stack
 
 - **Backend**
-	- `Java 17`
+	- `Java 21`
 	- `Spring Boot 3.x`
 	- `Spring Data JPA`
 - **Frontend**
@@ -58,12 +58,30 @@
 
 ---
 
+## Current Progress
+
+### Step 1. Server Testing to Java
+
+#### 1. Arranging Development Environment
+
+1.1. JDK Installation
+: Java OpenJDK 21.0.2 (LTS version)
+
+1.2. IDE Installation
+: IntelliJ IDEA (Community Edition)
+
+1.3. Build Tools Explained
+: Maven 이나 Gradle 은 프로젝트에 필요한 라이브버리를 자동으로 다운로드하고 관리해주는 도구이다.
+Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
+
+---
+
 ## Getting Started
 
 이 프로젝트를 로컬 환경에서 실행하는 방법을 안내한다.
 
 ### Requirements
-- JDK 17 이상
+- JDK 21
 - Maven 3.8 이상
 - Git
 
