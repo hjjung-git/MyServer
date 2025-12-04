@@ -1,0 +1,5 @@
+# ignore .idea files
+.idea/
+
+# ignore .DS_Store files
+.DS_Store/
