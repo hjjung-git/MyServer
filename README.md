@@ -72,8 +72,7 @@
 **1.3. Build Tools Explained**
 : Maven 이나 Gradle 은 프로젝트에 필요한 라이브버리를 자동으로 다운로드하고 관리해주는 도구이다.
 Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
-
-
+<br>
 #### 2. First Initializing Spring Boot
 
 **2.1. Generate Spring Boot project to Spring Initializer**
@@ -87,9 +86,8 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 
 **2.2. Server run & test**
 ~ http://localhost:8080/hello
-
-
-
+<br>
+<br>
 ### Step 2. DB Engineering to H2 DB
 
 #### 1. Add DB Dependency
@@ -109,14 +107,140 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
     <scope>runtime</scope>
 </dependency>
 ```
-- H2 DB 를 사용하는 이유 : 설정이 간단하여 파일 생성이나 경로 지정과 같은 과정 없이 런타임 DB 개념을 익히기 좋다.
+- H2 DB 를 사용하는 이유 : 설정이 간단하여 런타임 DB 개념을 익히기 좋다.
 
 **1.2. IntelliJ 의** `Maven` **새로고침하여 라이브러리 다운로드**
+<br>
+#### 2. DB Setting in `application.properties`
+: DB가 서버 재시작 후에도 데이터를 유지하도록 '파일 기반' 으로 설정
 
+**2.1. Create Temporary File**
+```properties
+spring.datasource.url=jdbc:h2:file:./data/testdb
+```
 
-#### 2. Structure a Data Model (Entity)
+**2.2. Add Auto-Create DDL Setting**
+```properties
+spring.jpa.hibernate.ddl-auto=update
+```
+- create : 서버 시작마다 새로운 테이블을 생성 (DB의 영속성 위반)
+- <u>update</u> : 시작 시 테이블이 없다면 생성 / 있다면 수정하는 방식
+<br>
+#### 3. Structure a Data Model (Entity)
 
-2.1. 
+**3.1. Create New Java Class (Guestbook)**
+```java
+package com.example.myfirstserver;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+// 이 클래스가 DB의 'guestbook' 테이블과 매핑된다고 알려줌
+@Entity
+public class Guestbook {
+
+    // 테이블의 기본키(Primary Key) 알림
+    @Id
+    // 값이 자동으로 1씩 증가
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // 글 번호
+
+    private String content; // 글 내용
+    private String author; // 작성자
+
+    // DB에 저장할 때 현재 시간을 자동으로 넣어줌
+    @PrePersist
+    private void createdAt() {
+        this.createdAt = LocalDateTime.now();
+    }
+    private LocalDateTime createdAt; // 작성 시간
+
+    // 생성자, Getter, Setter (우측 클릭 -> Generate -> Getter and Setter)
+    public Guestbook() {}
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+    public String getAuthor() { return author; }
+    public void setAuthor(String author) { this.author = author; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+}
+```
+<br>
+#### 4. Design Data Access Layer (Repository)
+
+**4.1. Create New Java Interface (GuestbookRepository)**
+```java
+package com.example.myfirstserver;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+// 이 인터페이스가 DB에 접근하는 Repository 역할을 한다고 알려줌
+@Repository
+// JpaRepository를 상속받으면, save(), findAll(), findById() 등
+// 기본적인 CRUD 메소드를 자동으로 사용할 수 있게 됨
+public interface GuestbookRepository extends JpaRepository<Guestbook, Long> {
+}
+```
+<br>
+#### 5. Connecting the Controller to the Database (Controller)
+
+**5.1. Create New Java Class (GuestbookController)**
+```java
+package com.example.myfirstserver;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+public class GuestbookController {
+
+    // 1. 필드를 final로 만들어 한번 설정되면 변경되지 않음을 보장
+    private final GuestbookRepository guestbookRepository;
+
+    // 2. 생성자를 만들고, @Autowired를 여기로 옮김
+    // Spring이 이 클래스를 만들 때, 생성자를 통해 GuestbookRepository 객체를 주입해줌
+    @Autowired
+    public GuestbookController(GuestbookRepository guestbookRepository) {
+        this.guestbookRepository = guestbookRepository;
+    }
+
+    // 이 아래 메소드들은 그대로 둡니다.
+    @GetMapping("/guestbook/write")
+    public Guestbook write(@RequestParam String author, @RequestParam String content) {
+        Guestbook guestbook = new Guestbook();
+        guestbook.setAuthor(author);
+        guestbook.setContent(content);
+        return guestbookRepository.save(guestbook);
+    }
+
+    @GetMapping("/guestbook/list")
+    public List<Guestbook> list() {
+        return guestbookRepository.findAll();
+    }
+}
+```
+<br>
+#### 6. DB Test
+
+**6.1. Run Server**
+
+**6.2. Create Data in DB**
+: `http://localhost:8080/guestbook/write?author=테스트&content=첫번째 글입니다.`
+
+**6.3. Check the Data Persistence**
+: `http://localhost:8080/guestbook/list`
+서버를 껐다 켠 후에도 데이터가 보존되는지 확인!
+<br>
+<br>
+### Step 3. 
 
 ---
 

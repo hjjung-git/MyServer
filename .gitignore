@@ -6,3 +6,6 @@
 
 # ignore .obsidian
 /.obsidian
+
+# ignore DB data file
+/data
