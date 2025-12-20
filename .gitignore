@@ -3,3 +3,6 @@
 
 # ignore .DS_Store files
 .DS_*
+
+# ignore .obsidian
+/.obsidian
