@@ -63,19 +63,20 @@
 
 #### 1. Arranging Development Environment
 
-1.1. JDK Installation
+**1.1. JDK Installation**
 : Java OpenJDK 21.0.2 (LTS version)
 
-1.2. IDE Installation
+**1.2. IDE Installation**
 : IntelliJ IDEA (Community Edition)
 
-1.3. Build Tools Explained
+**1.3. Build Tools Explained**
 : Maven 이나 Gradle 은 프로젝트에 필요한 라이브버리를 자동으로 다운로드하고 관리해주는 도구이다.
 Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 
+
 #### 2. First Initializing Spring Boot
 
-2.1. Generate Spring Boot project to Spring Initializer
+**2.1. Generate Spring Boot project to Spring Initializer**
 ~ https://start.spring.io/
 > Project : Maven Project  
 > Language : Java  
@@ -84,8 +85,38 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 > Configuration : Properties  
 > Dependencies : Spring Web  
 
-2.2. Server run & test
+**2.2. Server run & test**
 ~ http://localhost:8080/hello
+
+
+
+### Step 2. DB Engineering to H2 DB
+
+#### 1. Add DB Dependency
+
+**1.1. Add Following Dependencies in** `pom.xml`
+```xml
+<!-- JPA: Java 객체와 DB 테이블을 자동으로 매핑해주는 도구 -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+
+<!-- H2 Database: 개발 및 테스트용으로 매우 가벼운 인메모리 DB -->
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+- H2 DB 를 사용하는 이유 : 설정이 간단하여 파일 생성이나 경로 지정과 같은 과정 없이 런타임 DB 개념을 익히기 좋다.
+
+**1.2. IntelliJ 의** `Maven` **새로고침하여 라이브러리 다운로드**
+
+
+#### 2. Structure a Data Model (Entity)
+
+2.1. 
 
 ---
 
