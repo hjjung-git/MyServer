@@ -57,11 +57,11 @@
 
 ---
 
-## Current Progress
+# Current Progress
 
-### Step 1. Server Testing to Java
+## Step 1. Server Testing to Java
 
-#### 1. Arranging Development Environment
+### 1. Arranging Development Environment
 
 **1.1. JDK Installation**
 : Java OpenJDK 21.0.2 (LTS version)
@@ -72,8 +72,10 @@
 **1.3. Build Tools Explained**
 : Maven 이나 Gradle 은 프로젝트에 필요한 라이브버리를 자동으로 다운로드하고 관리해주는 도구이다.
 Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
+
 <br>
-#### 2. First Initializing Spring Boot
+
+### 2. First Initializing Spring Boot
 
 **2.1. Generate Spring Boot project to Spring Initializer**
 ~ https://start.spring.io/
@@ -86,11 +88,16 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 
 **2.2. Server run & test**
 ~ http://localhost:8080/hello
-<br>
-<br>
-### Step 2. DB Engineering to H2 DB
 
-#### 1. Add DB Dependency
+<br>
+
+---
+
+<br>
+
+## Step 2. DB Engineering to H2 DB
+
+### 1. Add DB Dependency
 
 **1.1. Add Following Dependencies in** `pom.xml`
 ```xml
@@ -110,8 +117,10 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 - H2 DB 를 사용하는 이유 : 설정이 간단하여 런타임 DB 개념을 익히기 좋다.
 
 **1.2. IntelliJ 의** `Maven` **새로고침하여 라이브러리 다운로드**
+
 <br>
-#### 2. DB Setting in `application.properties`
+
+### 2. DB Setting in `application.properties`
 : DB가 서버 재시작 후에도 데이터를 유지하도록 '파일 기반' 으로 설정
 
 **2.1. Create Temporary File**
@@ -125,8 +134,10 @@ spring.jpa.hibernate.ddl-auto=update
 ```
 - create : 서버 시작마다 새로운 테이블을 생성 (DB의 영속성 위반)
 - <u>update</u> : 시작 시 테이블이 없다면 생성 / 있다면 수정하는 방식
+
 <br>
-#### 3. Structure a Data Model (Entity)
+
+### 3. Structure a Data Model (Entity)
 
 **3.1. Create New Java Class (Guestbook)**
 ```java
@@ -168,8 +179,10 @@ public class Guestbook {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
 ```
+
 <br>
-#### 4. Design Data Access Layer (Repository)
+
+### 4. Design Data Access Layer (Repository)
 
 **4.1. Create New Java Interface (GuestbookRepository)**
 ```java
@@ -185,8 +198,10 @@ import org.springframework.stereotype.Repository;
 public interface GuestbookRepository extends JpaRepository<Guestbook, Long> {
 }
 ```
+
 <br>
-#### 5. Connecting the Controller to the Database (Controller)
+
+### 5. Connecting the Controller to the Database (Controller)
 
 **5.1. Create New Java Class (GuestbookController)**
 ```java
@@ -227,8 +242,10 @@ public class GuestbookController {
     }
 }
 ```
+
 <br>
-#### 6. DB Test
+
+### 6. DB Test
 
 **6.1. Run Server**
 
@@ -238,13 +255,20 @@ public class GuestbookController {
 **6.3. Check the Data Persistence**
 : `http://localhost:8080/guestbook/list`
 서버를 껐다 켠 후에도 데이터가 보존되는지 확인!
+
 <br>
-<br>
-### Step 3. 
 
 ---
 
-## Getting Started
+<br>
+
+## Step 3. 
+
+
+
+---
+
+# Getting Started
 
 이 프로젝트를 로컬 환경에서 실행하는 방법을 안내한다.
 
