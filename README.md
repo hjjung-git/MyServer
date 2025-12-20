@@ -91,7 +91,7 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 
 <br>
 
----
+
 
 <br>
 
@@ -258,7 +258,7 @@ public class GuestbookController {
 
 <br>
 
----
+
 
 <br>
 
