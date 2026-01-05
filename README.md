@@ -262,9 +262,216 @@ public class GuestbookController {
 
 <br>
 
-## Step 3. 
+## Step 3. UI/UX Engineering
+
+### 1. Add Thymeleaf Dependency
+
+**1.1. Add Following Dependencies in** `pom.xml`
+```xml
+<!-- Thymeleaf: 서버에서 HTML을 동적으로 생성해주는 템플릿 엔진 -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+```
+
+**1.2. IntelliJ 의** `Maven` **새로고침하여 라이브러리 다운로드**
+
+<br>
+
+### 2. Modify Controller
+: Controller 는 더 이상 JSON 타입을 반환하지 않음
+-> HTML 데이터를 담은 객체를 반환하도록 수정하기
+
+**2.1. Modify Controller Class (GuestbookController)**
+```java
+package com.example.my_server;  
+  
+import org.springframework.beans.factory.annotation.Autowired;  
+import org.springframework.web.bind.annotation.GetMapping;  
+import org.springframework.web.bind.annotation.RequestParam;  
+import org.springframework.stereotype.Controller;  
+import org.springframework.ui.Model;  
+import org.springframework.web.bind.annotation.PostMapping;  
+  
+import java.util.List;  
+  
+// @RestController -> @Controller  
+// 이제 JSON 데이터가 아닌 HTML 파일을 반환  
+@Controller  
+public class GuestbookController  
+{  
+    private final GuestbookRepository guestbookRepository;  
+  
+    // 생성자를 통한 객체 주입은 유지  
+    @Autowired  
+    public GuestbookController(GuestbookRepository guestbookRepository)  
+    {  
+        this.guestbookRepository = guestbookRepository;  
+    }  
+  
+    // 홈페이지(/)로 GET 요청이 오면 실행될 메소드  
+    @GetMapping("/")  
+    public String index(Model model)  
+    {  
+        // 1. DB에서 모든 방명록 데이터를 가져온다.  
+        List<Guestbook> guestbookList = guestbookRepository.findAll();  
+  
+        // 2. Model에 "guestbooks"라는 이름으로 데이터를 담아서 HTML로 전달한다.  
+        model.addAttribute("guestbooks", guestbookList);  
+  
+        // 3. "list"라는 이름의 HTML 파일을 찾아서 반환하라는 의미.  
+        return "list";  
+    }  
+  
+    @PostMapping("/guestbook/write")  
+    public String write(@RequestParam String author, @RequestParam String content)  
+    {  
+        // 1. Guestbook 객체 생성 및 데이터 설정  
+        Guestbook guestbook = new Guestbook();  
+        guestbook.setAuthor(author);  
+        guestbook.setContent(content);  
+  
+        // 2. Repository를 통해 DB에 저장  
+        guestbookRepository.save(guestbook);  
+  
+        // 3. 글쓰기가 완료되면 홈페이지(/)로 리다이렉트한다.  
+        return "redirect:/";  
+    }
+```
+
+- 핵심 변경점
+	- `@RestController`-> `@Controller`
+	- 반환 타입 : `Guestbook` (JSON) -> `String` (HTML 파일 이름)
+	- `Model` 객체를 사용하여 데이터를 View로 전달
+	- `@PostMapping` 을 사용하여 폼 데이터 처리
+	- `return "redirect:/";` : 작업 후 홈페이지로 리디렉션
+
+<br>
+
+### 3. Configure HTML Page (View)
+: Controller 가 반환하는 HTML 파일을 만드는 단계
+
+**3.1. Configure Thymeleaf Templates Path**
+
+`src/main/resources`디렉토리 내 `templates` 폴더 생성
+(Spring Boot 가 여기서 HTML 파일을 찾는다.)
+
+**3.2. Configure `list.html`**
+```html
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>나만의 방명록</title>
+</head>
+<body>
+    <h1>방명록</h1>
+
+    <!-- 글쓰기 폼 -->
+    <form action="/guestbook/write" method="post">
+        <input type="text" name="author" placeholder="작성자" required>
+        <input type="text" name="content" placeholder="내용" required>
+        <button type="submit">글쓰기</button>
+    </form>
+
+    <hr>
+
+    <!-- 방명록 목록 -->
+    <h2>방명록 목록</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>번호</th>
+                <th>작성자</th>
+                <th>내용</th>
+                <th>작성 시간</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 반복문: guestbooks 리스트에 있는 각 아이템을 'item'이라는 변수로 꺼내서 반복 -->
+            <tr th:each="item : ${guestbooks}">
+                <td th:text="${item.id}">1</td>
+                <td th:text="${item.author}">작성자</td>
+                <td th:text="${item.content}">내용</td>
+                <td th:text="${item.createdAt}">2024-01-01</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
+```
+
+<br>
+
+### 4. Styling with Bootstrap
+
+**4.1. Add Bootstrap CSS for CDN in `<head>` Tag**
+: Bootstrap CSS 파일을 웹에서 가져다 쓰는 CDN 방식
+```html
+<head>
+    <meta charset="UTF-8">
+    <title>나만의 방명록</title>
+    <!-- Bootstrap CSS CDN 추가 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+```
+
+**4.2. Modify `<body>`Tag to use Bootstrap class**
+```html
+<body>
+<div class="container">
+    <h1 class="my-4">나만의 방명록</h1>
+
+    <!-- 글쓰기 폼 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="/guestbook/write" method="post" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="author" class="form-control" placeholder="작성자" required>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" name="content" class="form-control" placeholder="내용" required>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">글쓰기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 방명록 목록 -->
+    <h2>방명록 목록</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>번호</th>
+                <th>작성자</th>
+                <th>내용</th>
+                <th>작성 시간</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${guestbooks}">
+                <td th:text="${item.id}">1</td>
+                <td th:text="${item.author}">작성자</td>
+                <td th:text="${item.content}">내용</td>
+                <td th:text="${item.createdAt}">2024-01-01</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+```
+
+<br>
 
 
+<br>
+
+## Step 4. System Management
+
+### 1. 
 
 ---
 
