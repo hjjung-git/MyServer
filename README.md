@@ -585,20 +585,54 @@ java -jar my-server-0.0.1-SNAPSHOT.jar
 nohup java -jar my-server-0.0.1-SNAPSHOT.jar &
 ```
 
+<br>
 
----
 
-# Getting Started
+<br>
 
-이 프로젝트를 로컬 환경에서 실행하는 방법을 안내한다.
+## Step 5. Security Engineering
 
-### Requirements
-- JDK 21
-- Maven 3.9.11
-- Git
+### 1. Apply HTTPS
 
-### Install & Run
-1. 해당 저장소를 클론
+**1.1. Install Nginx & Setting**
 ```bash
-git clone https://github.com/~
+# AWS 서버에 SSH로 접속하여 설치
+sudo dnf install nginx -y
+
+# Nginx 시작 및 자동 실행 설정
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+# 리버스 프록시 설정
+sudo vi /etc/nginx/conf.d/my-server.conf
 ```
+```nginx
+# vi 편집기를 통해 프록시 설정 코드
+server {
+	listen 80;
+	server_name [MY_PUBLIC_IP];
+	
+	location / {
+		proxy_pass http://localhost:8080;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real_IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+	}
+}
+```
+```bash
+# Nginx 재시작 (설정 적용)
+sudo systemctl restart nginx
+```
+
+**1.2. Set Domain**
+
+
+**1.3. Get Free SSL Certification**
+```bash
+# Certbot 설치
+sudo dnf install -y certbot python3-certbot-nginx
+
+# 인증서 발급 및 설치
+sudo certbot --nginx -d [MY_PUBLIC_IP]
