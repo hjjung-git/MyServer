@@ -9,3 +9,6 @@
 
 # ignore DB data file
 /data
+
+# ignore server key
+*.pem

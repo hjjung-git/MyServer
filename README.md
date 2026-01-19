@@ -471,7 +471,120 @@ public class GuestbookController
 
 ## Step 4. System Management
 
-### 1. 
+### 1. Create Cloud Server (EC2)
+: 아마존 AWS 에서 클라우드 서버 사용
+
+**1.1 AWS Management Console Log-in**
+: aws.amazon.com 에 로그인하여 **EC2** 를 찾는다.
+
+**1.2. EC2 Instance Start**
+: EC2 대시보드에서 '인스턴스 시작' 버튼 클릭
+
+**1.3. Set Name (Tag)**
+: '이름' 필드에 이름 설정 (`my-web-server`)
+
+**1.4. Select AMI**
+: 'Amazon Machine Image (AMI)' 검색창에 `Amazon Linux` 를 검색하고,
+**'Amazon Linux 2023 AMI'** 선택
+
+**1.5. Select Instance Type**
+: `t2.micro`또는 `t3.micro` 선택
+
+**1.6. Create Key Pair (Password)**
+: **새 키 페어 생성** 을 클릭하여, 키 이름을 짓고 생성.
+~ `my-server-key.pem` 파일이 자동 다운로드 (**잃어버리면 안된다!**)
+
+**1.7. Set Firewall (Secure Group)**
+: '보안 그룹 규칙' 에서 다음 세 가지의 규칙 추가
+  - **규칙 1** : 유형 `SSH` , 소스 `내 IP` (나의 컴퓨터에서만 SSH 접속)
+  - **규칙 2** : 유형 `HTTP`, 소스 `위치 무관` (아무나 HTTP로 접속 가능)
+  - **규칙 3** : 유형 `사용자정의 TCP`, 포트 범위 `8080`, 소스 `위치 무관`
+
+**1.8. Start Instance**
+
+<br>
+
+### 2. Server Access (SSH)
+: 만든 클라우드 서버에 원격 접속하기
+
+**2.1. Check Public IP**
+: EC2 인스턴스의 정보 중 **'Public IPv4 주소'** 를 복사해둔다.
+
+**2.2. Set Authorization of Key File**
+```bash
+# 키 파일 권한 변경 (나만 읽을 수 있도록)
+chmod 400 my-server-key.pem
+```
+
+**2.3. Access SSH**
+```bash
+ssh -i my-server-key.pem ec2-user@[MY_PUBLIC_IP]
+```
+
+<br>
+
+### 3. Build Server Environment
+: 서버에 프로젝트를 실행할 도구 설치
+
+**3.1. Server Update**
+```bash
+sudo yum update -y
+```
+
+**3.2. Install Java 21**
+```bash
+sudo yum install java-21-amazon-corretto -y
+```
+
+**3.3. Install Maven**
+```bash
+sudo yum install maven -y
+```
+
+**3.4. Check Installations**
+```bash
+java -version
+mvn -version
+```
+
+<br>
+
+### 4. Project Deployment
+: 프로젝트를 서버로 옮겨서 실행하기
+
+**4.1. Modify Application Properties**
+: application.properties 파일에 추가하기.
+```properties
+server.address=0.0.0.0
+```
+
+**4.2. Build Project on Local**
+```bash
+# IntelliJ 내 로컬 터미널에서 실행
+# 프로젝트를 실행 가능한 .jar 파일로 만들기
+mvn clean package
+```
+-> 프로젝트 폴더에 `target` 이라는 폴더가 생기고, 그 안에 `my-server ~ SNAPSHOT.jar` 파일 생성 확인
+
+**4.3. Duplicate Files to Server**
+```bash
+# 새로운 로컬 터미널 실행
+# jar 파일을 서버의 홈 디렉토리로 복사
+scp -i my-web-key.pem /path/to/your/project/target/my-...-SNAPSHOT.jar ec2-user@[MY_PUBLIC_IP]:~/
+```
+
+**4.4. Run Application in Server**
+```bash
+# .jar 파일이 잘 복사되었는지 확인
+ls
+
+# 서버 실행
+java -jar my-server-0.0.1-SNAPSHOT.jar
+
+# 백그라운드에서 실행
+nohup java -jar my-server-0.0.1-SNAPSHOT.jar &
+```
+
 
 ---
 
