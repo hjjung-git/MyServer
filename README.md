@@ -646,7 +646,7 @@ sudo vi /etc/nginx/conf.d/my-server.conf
 # vi 편집기를 통해 프록시 설정 코드
 server {
 	listen 80;
-	server_name [MY_PUBLIC_IP];
+	server_name [MY_DOMAIN];
 	
 	location / {
 		proxy_pass http://localhost:8080;
@@ -671,8 +671,15 @@ sudo systemctl restart nginx
 sudo dnf install -y certbot python3-certbot-nginx
 
 # 인증서 발급 및 설치
-sudo certbot --nginx -d [MY_PUBLIC_IP]
+sudo certbot --nginx -d [MY_DOMAIN]
 ```
+
+**1.4. Modify Security Group**
+: HTTPS 인증서를 받아 연결하도록 설정하였으니 HTTPS 포트 (443) 를 열어주어야 한다.
+-> AWS 보안그룹에서 새로운 인바운드 규칙 추가
+`유형` : HTTPS
+`포트 범위` : 443
+`소스` : IPv4 Anywhere (0.0.0.0)
 
 <br>
 
