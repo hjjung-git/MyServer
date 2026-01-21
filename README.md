@@ -4,7 +4,7 @@
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=java&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-07405E?style=flat-square&logo=sqlite&logoColor=white)
+![H2 Database](https://img.shields.io/badge/H2-blue)
 
 > NCS ICT 직무(응용SW, DB, 보안, UI/UX, IT시스템관리) 를 연계하여,
 > 처음부터 끝까지 직접 구축해보는 나만의 웹 서버 프로젝트
@@ -17,8 +17,9 @@
 컴퓨터공학과 전공자로서 배운 이론을 실제 서비스에 적용하고, NCS에서 제시하는 5가지 핵심 직무의 역할을 이해하며 통합적인 시각을 기르는 데 중점을 두었다.
 
 ### Main Features
-- 서버 구축 및 관리
-- 포트폴리오 저장
+- 웹서버 구축 및 관리
+- 웹서버 유지 보수
+- 다양한 포트폴리오 기록
 
 ---
 
@@ -26,38 +27,59 @@
 
 각 개발 단계를 NCS ICT 직무와 명확하게 연계하였다.
 
+#### Phase 1 : Server Setting
+
 | NCS 직무         | 프로젝트 내 역할               | 관련 기술/키워드                                 |
 | :------------- | :---------------------- | :---------------------------------------- |
 | **응용SW엔지니어링**  | 서비스의 핵심 로직 및 API 개발     | Java, Spring Boot, RESTful API            |
-| **DB엔지니어링**    | 데이터 모델링 및 영속성 관리        | SQLite, JPA, CRUD                         |
+| **DB엔지니어링**    | 데이터 모델링 및 영속성 관리        | H2, JPA, CRUD                             |
 | **UI/UX엔지니어링** | 사용자 인터페이스 설계 및 구현       | HTML, CSS, Bootstrap, 반응형 웹               |
 | **IT시스템관리**    | 서버 구축, 배포 및 운영          | AWS EC2, Docker, Nginx                    |
 | **보안엔지니어링**    | 인증/인가, 데이터 암호화 및 취약점 방어 | HTTPS, Password Hashing, Input Validation |
+
+<br>
+
+#### Phase 2 : Server Maintenance
+
+| NCS 직무        | 프로젝트 내 역할          | 관련 기술/키워드                                                      |
+| :------------ | :----------------- | :------------------------------------------------------------- |
+| **응용SW엔지니어링** | 기능 개발 및 코드 관리      | CRUD, Refactoring                                             |
+| **DB엔지니어링**   | 데이터베이스 관리 및 구조     | Backup & Restore, DB Migration                                 |
+| **IT시스템관리**   | 인프라 엔지니어링 및 보안     | Security Patch, Log Management, Resource Monitoring            |
+| **IT시스템관리**   | DevOps 엔지니어링 및 자동화 | CI/CD, GitHub Actions, Automated Testing, Automated Deployment |
 
 ---
 
 ## Tech Stack
 
+- **OS**
+	- `macOS 26 Tahoe`
 - **Backend**
-	- `Java 21`
-	- `Spring Boot 4.0.0`
-	- `Spring Data JPA`
+	- Runtime / Language
+		- `Java 21`
+	- Framework
+		- `Spring Boot 4.0.0`
+		- `Spring Data JPA`
 - **Frontend**
 	- `HTML5`, `CSS3`
 	- `Bootstrap 5`
 - **Database**
-	- `SQLite`
+	- `H2`
 - **Deployment**
-	- `AWS EC2`
+	- `AWS EC2 Linux / ami-2023`
 	- `Docker`
 	- `Nginx (Web Server)`
 - **Tools**
-	- `IntelliJ IDEA (Community Edition)`
-	- `GitHub`
+	- IDE
+		- `IntelliJ IDEA (Community Edition)`
+	- Build Tool
+		- `Maven`
+	- Version Control
+		- `GitHub`
 
 ---
 
-# Current Progress
+# Phase 1 : How to set up my WebServer
 
 ## Step 1. Server Testing to Java
 
@@ -70,7 +92,7 @@
 : IntelliJ IDEA (Community Edition)
 
 **1.3. Build Tools Explained**
-: Maven 이나 Gradle 은 프로젝트에 필요한 라이브버리를 자동으로 다운로드하고 관리해주는 도구이다.
+: Maven 이나 Gradle 은 프로젝트에 필요한 라이브러리를 자동으로 다운로드하고 관리해주는 도구이다.
 Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 
 <br>
@@ -125,11 +147,13 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 
 **2.1. Create Temporary File**
 ```properties
+# application.properties 파일에 다음 줄 추가
 spring.datasource.url=jdbc:h2:file:./data/testdb
 ```
 
 **2.2. Add Auto-Create DDL Setting**
 ```properties
+# application.properties 파일에 다음 줄 추가
 spring.jpa.hibernate.ddl-auto=update
 ```
 - create : 서버 시작마다 새로운 테이블을 생성 (DB의 영속성 위반)
@@ -651,4 +675,22 @@ sudo certbot --nginx -d [MY_PUBLIC_IP]
 ```
 
 <br>
+
+---
+
+
+# Phase 2 : Maintaining & Operation
+
+## Step 1. Application Maintenance
+
+### 1. Implement Full CRUD
+: 현재 내 웹서버는 Create(글쓰기) 와 Read(목록 보기) 만 가능하다.
+-> **Update(수정)** 과 **Delete(삭제)** 기능을 추가
+
+**1.1. Implement 'Delete'**
+
+
+**1.2. Implement 'Update'**
+
+---
 
