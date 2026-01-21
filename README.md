@@ -587,6 +587,18 @@ nohup java -jar my-server-0.0.1-SNAPSHOT.jar &
 
 <br>
 
+### 5. Maintain Operation Stability
+
+**5.1. Assign Elastic IP**
+: EC2 서버에 연결할 때마다 동적 IP 사용으로 퍼블릭 IPv4 주소가 변경된다.
+-> AWS 에서 **'Elasic IP'** 를 할당받아 인스턴스에 연결한다.
+
+**5.2. Set Domain**
+: 순수 IP 주소가 아닌 도메인 이름을 구하여 연결한다.
+-> 무료 도메인을 구하여 **DNS 설정을 통해 도메인을 서버 퍼블릭 IPv4로 연결**한다.
+
+<br>
+
 
 <br>
 
@@ -627,7 +639,7 @@ sudo systemctl restart nginx
 ```
 
 **1.2. Set Domain**
-
+: 무료 도메인을 발급받거나 도메인을 구매하여 DNS를 통해 EC2의 퍼블릭 IPv4 주소를 연결시킨다.
 
 **1.3. Get Free SSL Certification**
 ```bash
@@ -636,3 +648,7 @@ sudo dnf install -y certbot python3-certbot-nginx
 
 # 인증서 발급 및 설치
 sudo certbot --nginx -d [MY_PUBLIC_IP]
+```
+
+<br>
+
