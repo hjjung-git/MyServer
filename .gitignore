@@ -12,3 +12,6 @@
 
 # ignore server key
 *.pem
+
+# ignore nohup.out
+nohup.out
