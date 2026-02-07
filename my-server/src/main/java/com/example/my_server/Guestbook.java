@@ -16,13 +16,18 @@ public class Guestbook
     private String content; // 글 내용
     private String author; // 작성자
 
+    private LocalDateTime lastModifiedAt;
+
     // DB 저장 시 현재 시간을 자동으로 넣어준다.
     @PrePersist
-    private void createAt()
+    private void onCreate()
     {
-        this.createdAt = LocalDateTime.now();
+        this.lastModifiedAt = LocalDateTime.now();
     }
-    private LocalDateTime createdAt; // 작성 시간
+
+    // 수정 시에도 시간을 업데이트
+    @PreUpdate
+    public void onUpdate() { this.lastModifiedAt = LocalDateTime.now(); }
 
     // 생성자, Getter, Setter (우클릭 -> Generate -> Getter and Setter)
     public Guestbook() {}
@@ -33,6 +38,6 @@ public class Guestbook
     public void setContent(String content) { this.content = content; }
     public String getAuthor() { return author; }
     public void setAuthor(String author) { this.author = author; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getLastModifiedAt() { return lastModifiedAt; }
+    public void setLastModifiedAt(LocalDateTime createdAt) { this.lastModifiedAt = lastModifiedAt; }
 }

@@ -797,9 +797,132 @@ public String update(@PathVariable Long id, @ModelAttribute Guestbook guestbook)
 -> 반복 상태 변수 추가
 ```html
 <!-- list.html -->
-
+<tbody>
+    <!-- ⭐ 'item' 과 함께 'stat' 라는 상태 변수를 추가 -->
+    <tr th:each="item, stat : ${guestbooks}">
+        <!-- ⭐ stat.count 를 사용하여 순차 번호를 표시 -->
+        <td th:text="${stat.count}">1</td>
+        <td th:text="${item.author}">작성자</td>
+        <td th:text="${item.content}">내용</td>
+        <td th:text="${item.createdAt}">2024-01-01</td>
+        <td>
+            <a th:href="@{/guestbook/edit/{id}(id=${item.id})}" class="btn btn-warning btn-sm me-1">수정</a>
+            <a th:href="@{/guestbook/delete/{id}(id=${item.id})}" class="btn btn-danger btn-sm">삭제</a>
+        </td>
+    </tr>
+</tbody>
 ```
 
+**1.5. Recently Updated Time**
+: 수정 시 작성 시간 대신 최근 수정 시간으로 갱신되도록 변경
+-> @PreUpdate 어노테이션
+```java
+// Guestbook.java
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+public class Guestbook
+{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String content;
+    private String author;
+
+    // 필드명 변경
+    private LocalDateTime lastModifiedAt;
+
+    // 생성 시에도 시간 설정
+    @PrePersist
+    public void onCreate() { this.lastModifiedAt = LocalDateTime.now(); }
+
+    // ⭐ 수정 시에도 시간을 업데이트하는 메소드 추가
+    @PreUpdate
+    public void onUpdate() { this.lastModifiedAt = LocalDateTime.now(); }
+
+    // ... 기존의 Getter/Setter들도 필드명에 맞게 수정
+    public LocalDateTime getLastModifiedAt() { return lastModifiedAt; }
+    public void setLastModifiedAt(LocalDateTime lastModifiedAt) { this.lastModifiedAt = lastModifiedAt; }
+    // ... 나머지 Getter/Setter는 그대로
+}
+```
+
+`list.html` 과 `edit.html` 도 변경점에 맞게 수정
+```html
+<!-- list.html -->
+<td th:text="${item.lastModifiedAt}">2024-01-01</td>
+```
+
+`edit.html` 에서는 사용자가 직접 시간을 수정할 필요 X
+-> '작성 시간' 필드 삭제
+
+**1.6. Time Format & Adjust Table Layout**
+```html
+<!-- list.html -->
+<thead>
+    <tr>
+        <th style="width: 5%;">번호</th>
+        <th style="width: 15%;">작성자</th>
+        <!-- ⭐ 내용 칸 너비를 넓힘 -->
+        <th style="width: 55%;">내용</th>
+        <th style="width: 15%;">수정 시간</th>
+        <th style="width: 10%;">기능</th>
+    </tr>
+</thead>
+<tbody>
+    <tr th:each="item, stat : ${guestbooks}">
+        <td th:text="${stat.count}">1</td>
+        <td th:text="${item.author}">작성자</td>
+        <!-- ⭐ 내용은 길어질 수 있으니 td 안에서 그대로 표시 -->
+        <td th:text="${item.content}">내용</td>
+        <!-- ⭐ 시간 포맷을 YYYY-MM-DD HH:MM 으로 변경 -->
+        <td th:text="${#temporals.format(item.lastModifiedAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:34</td>
+        <td>
+            <a th:href="@{/guestbook/edit/{id}(id=${item.id})}" class="btn btn-warning btn-sm me-1">수정</a>
+            <a th:href="@{/guestbook/delete/{id}(id=${item.id})}" class="btn btn-danger btn-sm">삭제</a>
+        </td>
+    </tr>
+</tbody>
+```
+
+**1.7. Post Sorting**
+: ID를 기준으로 Repository 에 정렬 기능 추가
+-> Spring Data JPA
+
+```java
+// GuestbookRepository.java
+package com.example.myfirstserver;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface GuestbookRepository extends JpaRepository<Guestbook, Long>
+{
+    // ⭐ 'id'를 기준으로 내림차순(DESC) 정렬하여 모든 데이터를 가져오는 메소드
+    // JPA가 이 메소드 이름을 보고 "ORDER BY id DESC" 쿼리를 자동으로 만들어줌
+    List<Guestbook> findAllByOrderByIdDesc();
+}
+```
+```java
+// GuestbookController.java
+@GetMapping("/")
+public String index(Model model)
+{
+    // ⭐ 기존 findAll() 대신 새로운 메소드를 호출
+    List<Guestbook> guestbookList = guestbookRepository.findAllByOrderByIdDesc();
+
+    model.addAttribute("guestbooks", guestbookList);
+    return "list";
+}
+```
+
+**1.8. Set Time Zone**
+: 
 
 ---
 

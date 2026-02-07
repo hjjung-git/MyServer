@@ -26,7 +26,7 @@ public class GuestbookController
     public String index(Model model)
     {
         // 1. DB에서 모든 방명록 데이터를 가져온다.
-        List<Guestbook> guestbookList = guestbookRepository.findAll();
+        List<Guestbook> guestbookList = guestbookRepository.findAllByOrderByIdDesc();
 
         // 2. Model에 "guestbooks"라는 이름으로 데이터를 담아서 HTML로 전달한다.
         model.addAttribute("guestbooks", guestbookList);

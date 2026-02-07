@@ -31,18 +31,19 @@
     <table class="table table-striped">
         <thead>
         <tr>
-            <th>번호</th>
-            <th>작성자</th>
-            <th>내용</th>
-            <th>작성 시간</th>
+            <th style="width: 5%;">번호</th>
+            <th style="width: 15%;">작성자</th>
+            <th style="width: 55%;">내용</th>
+            <th style="width: 15%;">수정 시간</th>
+            <th style="width: 10%;">기능</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="item : ${guestbooks}">
-            <td th:text="${item.id}">1</td>
+        <tr th:each="item, stat : ${guestbooks}">
+            <td th:text="${stat.count}">1</td>
             <td th:text="${item.author}">작성자</td>
             <td th:text="${item.content}">내용</td>
-            <td th:text="${item.createdAt}">2024-01-01</td>
+            <td th:text="${#temporals.format(item.lastModifiedAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:34</td>
             <td>
                 <a th:href="@{/guestbook/edit/{id}(id=${item.id})}" class="btn btn-warning btn-sm me-1">수정</a>
                 <a th:href="@{/guestbook/delete/{id}(id=${item.id})}" class="btn btn-danger btn-sm">삭제</a>
