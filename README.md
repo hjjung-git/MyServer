@@ -690,14 +690,116 @@ sudo certbot --nginx -d [MY_DOMAIN]
 
 ## Step 1. Application Maintenance
 
-### 1. Implement Full CRUD
+### 1. Implement Full CRUD
 : 현재 내 웹서버는 Create(글쓰기) 와 Read(목록 보기) 만 가능하다.
--> **Update(수정)** 과 **Delete(삭제)** 기능을 추가
+-> **Update(수정)** 과 **Delete(삭제)** 기능 추가 및 부가 기능 고도화
 
-**1.1. Implement 'Delete'**
+**1.1. Add Update/Delete Button on `list.html`**
+```html
+<tbody>  
+	<tr th:each="item : ${guestbooks}">  
+	    <td th:text="${item.id}">1</td>  
+	    <td th:text="${item.author}">작성자</td>  
+	    <td th:text="${item.content}">내용</td>  
+	    <td th:text="${item.createdAt}">2024-01-01</td>  
+	    <!-- 삭제 추가 -->
+	    <td>
+		    <a th:href="@{/guestbook/delete(id=${item.id})}" class="btn btn-danger btn-sm">삭제</a>  
+	    </td>
+	    <!-- 수정 추가 -->
+	    <td>
+		    <a th:href="@{/guestbook/edit/{id}(id=${item.id})}" class="btn btn-warning btn-sm me-1">수정</a>
+		    <a th:href="@{/guestbook/delete/{id}(id=${item.id})}" class="btn btn-danger btn-sm">삭제</a>
+		</td>
+    </tr>  
+</tbody>
+```
 
+**1.2. Add Update/Delete Logic on `GuestbookController.java`**
+```java
+// GuestbookController.java 클래스 내에 추가
+import org.springframework.web.bind.annotation.*;
 
-**1.2. Implement 'Update'**
+// 삭제
+@GetMapping("/guestbook/delete/{id}")
+public String delete(@PathVariable Long id)
+{
+    // Repository를 통해 ID에 해당하는 데이터를 DB에서 삭제
+    guestbookRepository.deleteById(id);
+    // 삭제 후 홈페이지로 리다이렉트
+    return "redirect:/";
+}
+
+//수정
+// (수정 폼을 보여주는 메소드)
+@GetMapping("/guestbook/edit/{id}")
+public String editForm(@PathVariable Long id, Model model)
+{
+    // Repository를 통해 ID에 해당하는 기존 데이터를 찾아옴
+    Guestbook guestbook = guestbookRepository.findById(id).orElseThrow();
+    // 찾아온 객체를 "guestbook"이라는 이름에 담아서 View로 전달
+    model.addAttribute("guestbook", guestbook);
+    // "edit"라는 이름의 HTML 파일을 찾아서 반환
+    return "edit";
+}
+
+// 수정 처리 메소드
+@PostMapping("/guestbook/update/{id}")
+public String update(@PathVariable Long id, @ModelAttribute Guestbook guestbook)
+{
+    // DB에서 기존 데이터를 다시 가져옴
+    Guestbook existingGuestbook = guestbookRepository.findById(id).orElseThrow();
+    // 폼에서 넘어온 데이터로 기존 데이터의 내용을 덮어씀
+    existingGuestbook.setAuthor(guestbook.getAuthor());
+    existingGuestbook.setContent(guestbook.getContent());
+    // 수정된 데이터를 DB에 저장 (JPA는 수정된 것을 인지하고 UPDATE 쿼리를 실행)
+    guestbookRepository.save(existingGuestbook);
+    // 수정이 완료되면 홈페이지로 리다이렉트
+    return "redirect:/";
+}
+```
+
+**1.3. Create Update Form HTML file (`edit.html`)** 
+```html
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>글 수정</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1>글 수정</h1>
+    <!-- th:object="${guestbook}" : 폼 전체가 이 객체와 연결됨 -->
+    <form th:action="@{/guestbook/update/{id}(id=${guestbook.id})}" method="post" th:object="${guestbook}">
+        <!-- id는 hidden으로 숨겨서 함께 전송 -->
+        <input type="hidden" th:field="*{id}" />
+        <div class="mb-3">
+            <label for="author" class="form-label">작성자</label>
+            <!-- th:field="*{author}" : guestbook.author 필드와 연결되고, 기존 값이 자동으로 채워짐 -->
+            <input type="text" class="form-control" id="author" th:field="*{author}" required>
+        </div>
+        <div class="mb-3">
+            <label for="content" class="form-label">내용</label>
+            <textarea class="form-control" id="content" rows="3" th:field="*{content}" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">수정 완료</button>
+        <a href="/" class="btn btn-secondary">취소</a>
+    </form>
+</div>
+</body>
+</html>
+```
+
+**1.4. Update Serial Number**
+: 생성 / 삭제 후에도 순차 번호가 갱신되도록 기능 고도화 
+-> 반복 상태 변수 추가
+```html
+<!-- list.html -->
+
+```
+
 
 ---
 

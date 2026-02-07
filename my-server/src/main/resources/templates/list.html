@@ -7,7 +7,7 @@
 </head>
 <body>
 <div class="container">
-    <h1 class="my-4">나만의 방명록</h1>
+    <h1 class="my-4">방명록</h1>
 
     <!-- 글쓰기 폼 -->
     <div class="card mb-4">
@@ -43,6 +43,10 @@
             <td th:text="${item.author}">작성자</td>
             <td th:text="${item.content}">내용</td>
             <td th:text="${item.createdAt}">2024-01-01</td>
+            <td>
+                <a th:href="@{/guestbook/edit/{id}(id=${item.id})}" class="btn btn-warning btn-sm me-1">수정</a>
+                <a th:href="@{/guestbook/delete/{id}(id=${item.id})}" class="btn btn-danger btn-sm">삭제</a>
+            </td>
         </tr>
         </tbody>
     </table>
