@@ -164,45 +164,8 @@ spring.jpa.hibernate.ddl-auto=update
 ### 3. Structure a Data Model (Entity)
 
 **3.1. Create New Java Class (Guestbook)**
-```java
-package com.example.myfirstserver;
-
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
-
-// 이 클래스가 DB의 'guestbook' 테이블과 매핑된다고 알려줌
-@Entity
-public class Guestbook {
-
-    // 테이블의 기본키(Primary Key) 알림
-    @Id
-    // 값이 자동으로 1씩 증가
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 글 번호
-
-    private String content; // 글 내용
-    private String author; // 작성자
-
-    // DB에 저장할 때 현재 시간을 자동으로 넣어줌
-    @PrePersist
-    private void createdAt() {
-        this.createdAt = LocalDateTime.now();
-    }
-    private LocalDateTime createdAt; // 작성 시간
-
-    // 생성자, Getter, Setter (우측 클릭 -> Generate -> Getter and Setter)
-    public Guestbook() {}
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-}
-```
+: 새로운 domain 클래스 생성 및 구성
+-> Guestbook 클래스는 데이터 모델(엔티티)를 구성하는 클래스가 된다.
 
 <br>
 
@@ -228,44 +191,8 @@ public interface GuestbookRepository extends JpaRepository<Guestbook, Long> {
 ### 5. Connecting the Controller to the Database (Controller)
 
 **5.1. Create New Java Class (GuestbookController)**
-```java
-package com.example.myfirstserver;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-
-@RestController
-public class GuestbookController {
-
-    // 1. 필드를 final로 만들어 한번 설정되면 변경되지 않음을 보장
-    private final GuestbookRepository guestbookRepository;
-
-    // 2. 생성자를 만들고, @Autowired를 여기로 옮김
-    // Spring이 이 클래스를 만들 때, 생성자를 통해 GuestbookRepository 객체를 주입해줌
-    @Autowired
-    public GuestbookController(GuestbookRepository guestbookRepository) {
-        this.guestbookRepository = guestbookRepository;
-    }
-
-    // 이 아래 메소드들은 그대로 둡니다.
-    @GetMapping("/guestbook/write")
-    public Guestbook write(@RequestParam String author, @RequestParam String content) {
-        Guestbook guestbook = new Guestbook();
-        guestbook.setAuthor(author);
-        guestbook.setContent(content);
-        return guestbookRepository.save(guestbook);
-    }
-
-    @GetMapping("/guestbook/list")
-    public List<Guestbook> list() {
-        return guestbookRepository.findAll();
-    }
-}
-```
+: 새로운 Controller 클래스 생성 및 구성
+-> Controller 클래스는 HTTP 요청 및 처리, 비즈니스 로직이 구현되어 있다.
 
 <br>
 
@@ -308,62 +235,6 @@ public class GuestbookController {
 -> HTML 데이터를 담은 객체를 반환하도록 수정하기
 
 **2.1. Modify Controller Class (GuestbookController)**
-```java
-package com.example.my_server;  
-  
-import org.springframework.beans.factory.annotation.Autowired;  
-import org.springframework.web.bind.annotation.GetMapping;  
-import org.springframework.web.bind.annotation.RequestParam;  
-import org.springframework.stereotype.Controller;  
-import org.springframework.ui.Model;  
-import org.springframework.web.bind.annotation.PostMapping;  
-  
-import java.util.List;  
-  
-// @RestController -> @Controller  
-// 이제 JSON 데이터가 아닌 HTML 파일을 반환  
-@Controller  
-public class GuestbookController  
-{  
-    private final GuestbookRepository guestbookRepository;  
-  
-    // 생성자를 통한 객체 주입은 유지  
-    @Autowired  
-    public GuestbookController(GuestbookRepository guestbookRepository)  
-    {  
-        this.guestbookRepository = guestbookRepository;  
-    }  
-  
-    // 홈페이지(/)로 GET 요청이 오면 실행될 메소드  
-    @GetMapping("/")  
-    public String index(Model model)  
-    {  
-        // 1. DB에서 모든 방명록 데이터를 가져온다.  
-        List<Guestbook> guestbookList = guestbookRepository.findAll();  
-  
-        // 2. Model에 "guestbooks"라는 이름으로 데이터를 담아서 HTML로 전달한다.  
-        model.addAttribute("guestbooks", guestbookList);  
-  
-        // 3. "list"라는 이름의 HTML 파일을 찾아서 반환하라는 의미.  
-        return "list";  
-    }  
-  
-    @PostMapping("/guestbook/write")  
-    public String write(@RequestParam String author, @RequestParam String content)  
-    {  
-        // 1. Guestbook 객체 생성 및 데이터 설정  
-        Guestbook guestbook = new Guestbook();  
-        guestbook.setAuthor(author);  
-        guestbook.setContent(content);  
-  
-        // 2. Repository를 통해 DB에 저장  
-        guestbookRepository.save(guestbook);  
-  
-        // 3. 글쓰기가 완료되면 홈페이지(/)로 리다이렉트한다.  
-        return "redirect:/";  
-    }
-```
-
 - 핵심 변경점
 	- `@RestController`-> `@Controller`
 	- 반환 타입 : `Guestbook` (JSON) -> `String` (HTML 파일 이름)
@@ -382,49 +253,7 @@ public class GuestbookController
 (Spring Boot 가 여기서 HTML 파일을 찾는다.)
 
 **3.2. Configure `list.html`**
-```html
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>나만의 방명록</title>
-</head>
-<body>
-    <h1>방명록</h1>
-
-    <!-- 글쓰기 폼 -->
-    <form action="/guestbook/write" method="post">
-        <input type="text" name="author" placeholder="작성자" required>
-        <input type="text" name="content" placeholder="내용" required>
-        <button type="submit">글쓰기</button>
-    </form>
-
-    <hr>
-
-    <!-- 방명록 목록 -->
-    <h2>방명록 목록</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>번호</th>
-                <th>작성자</th>
-                <th>내용</th>
-                <th>작성 시간</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- 반복문: guestbooks 리스트에 있는 각 아이템을 'item'이라는 변수로 꺼내서 반복 -->
-            <tr th:each="item : ${guestbooks}">
-                <td th:text="${item.id}">1</td>
-                <td th:text="${item.author}">작성자</td>
-                <td th:text="${item.content}">내용</td>
-                <td th:text="${item.createdAt}">2024-01-01</td>
-            </tr>
-        </tbody>
-    </table>
-</body>
-</html>
-```
+: 화면에 표시할 메인 UI 를 HTML 파일을 생성해 구현
 
 <br>
 
@@ -432,61 +261,9 @@ public class GuestbookController
 
 **4.1. Add Bootstrap CSS for CDN in `<head>` Tag**
 : Bootstrap CSS 파일을 웹에서 가져다 쓰는 CDN 방식
-```html
-<head>
-    <meta charset="UTF-8">
-    <title>나만의 방명록</title>
-    <!-- Bootstrap CSS CDN 추가 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-```
+
 
 **4.2. Modify `<body>`Tag to use Bootstrap class**
-```html
-<body>
-<div class="container">
-    <h1 class="my-4">나만의 방명록</h1>
-
-    <!-- 글쓰기 폼 -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form action="/guestbook/write" method="post" class="row g-3">
-                <div class="col-md-4">
-                    <input type="text" name="author" class="form-control" placeholder="작성자" required>
-                </div>
-                <div class="col-md-6">
-                    <input type="text" name="content" class="form-control" placeholder="내용" required>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">글쓰기</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- 방명록 목록 -->
-    <h2>방명록 목록</h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>번호</th>
-                <th>작성자</th>
-                <th>내용</th>
-                <th>작성 시간</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="item : ${guestbooks}">
-                <td th:text="${item.id}">1</td>
-                <td th:text="${item.author}">작성자</td>
-                <td th:text="${item.content}">내용</td>
-                <td th:text="${item.createdAt}">2024-01-01</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-</body>
-```
 
 <br>
 
@@ -689,240 +466,96 @@ sudo certbot --nginx -d [MY_DOMAIN]
 # Phase 2 : Maintaining & Operation
 
 ## Step 1. Application Maintenance
+: 사용자 친화적인 완성도 있는 서비스 제공
 
 ### 1. Implement Full CRUD
 : 현재 내 웹서버는 Create(글쓰기) 와 Read(목록 보기) 만 가능하다.
--> **Update(수정)** 과 **Delete(삭제)** 기능 추가 및 부가 기능 고도화
+-> **Update(수정)** 과 **Delete(삭제)** 기능 추가
 
 **1.1. Add Update/Delete Button on `list.html`**
-```html
-<tbody>  
-	<tr th:each="item : ${guestbooks}">  
-	    <td th:text="${item.id}">1</td>  
-	    <td th:text="${item.author}">작성자</td>  
-	    <td th:text="${item.content}">내용</td>  
-	    <td th:text="${item.createdAt}">2024-01-01</td>  
-	    <!-- 삭제 추가 -->
-	    <td>
-		    <a th:href="@{/guestbook/delete(id=${item.id})}" class="btn btn-danger btn-sm">삭제</a>  
-	    </td>
-	    <!-- 수정 추가 -->
-	    <td>
-		    <a th:href="@{/guestbook/edit/{id}(id=${item.id})}" class="btn btn-warning btn-sm me-1">수정</a>
-		    <a th:href="@{/guestbook/delete/{id}(id=${item.id})}" class="btn btn-danger btn-sm">삭제</a>
-		</td>
-    </tr>  
-</tbody>
-```
+: 화면 상에 표시될 수정 및 삭제 버튼을 `list.html` 에서 구현
+
 
 **1.2. Add Update/Delete Logic on `GuestbookController.java`**
-```java
-// GuestbookController.java 클래스 내에 추가
-import org.springframework.web.bind.annotation.*;
+: 컨트롤러 상에서 실제 로직 구현
 
-// 삭제
-@GetMapping("/guestbook/delete/{id}")
-public String delete(@PathVariable Long id)
-{
-    // Repository를 통해 ID에 해당하는 데이터를 DB에서 삭제
-    guestbookRepository.deleteById(id);
-    // 삭제 후 홈페이지로 리다이렉트
-    return "redirect:/";
-}
-
-//수정
-// (수정 폼을 보여주는 메소드)
-@GetMapping("/guestbook/edit/{id}")
-public String editForm(@PathVariable Long id, Model model)
-{
-    // Repository를 통해 ID에 해당하는 기존 데이터를 찾아옴
-    Guestbook guestbook = guestbookRepository.findById(id).orElseThrow();
-    // 찾아온 객체를 "guestbook"이라는 이름에 담아서 View로 전달
-    model.addAttribute("guestbook", guestbook);
-    // "edit"라는 이름의 HTML 파일을 찾아서 반환
-    return "edit";
-}
-
-// 수정 처리 메소드
-@PostMapping("/guestbook/update/{id}")
-public String update(@PathVariable Long id, @ModelAttribute Guestbook guestbook)
-{
-    // DB에서 기존 데이터를 다시 가져옴
-    Guestbook existingGuestbook = guestbookRepository.findById(id).orElseThrow();
-    // 폼에서 넘어온 데이터로 기존 데이터의 내용을 덮어씀
-    existingGuestbook.setAuthor(guestbook.getAuthor());
-    existingGuestbook.setContent(guestbook.getContent());
-    // 수정된 데이터를 DB에 저장 (JPA는 수정된 것을 인지하고 UPDATE 쿼리를 실행)
-    guestbookRepository.save(existingGuestbook);
-    // 수정이 완료되면 홈페이지로 리다이렉트
-    return "redirect:/";
-}
-```
 
 **1.3. Create Update Form HTML file (`edit.html`)** 
-```html
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>글 수정</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<div class="container mt-5">
-    <h1>글 수정</h1>
-    <!-- th:object="${guestbook}" : 폼 전체가 이 객체와 연결됨 -->
-    <form th:action="@{/guestbook/update/{id}(id=${guestbook.id})}" method="post" th:object="${guestbook}">
-        <!-- id는 hidden으로 숨겨서 함께 전송 -->
-        <input type="hidden" th:field="*{id}" />
-        <div class="mb-3">
-            <label for="author" class="form-label">작성자</label>
-            <!-- th:field="*{author}" : guestbook.author 필드와 연결되고, 기존 값이 자동으로 채워짐 -->
-            <input type="text" class="form-control" id="author" th:field="*{author}" required>
-        </div>
-        <div class="mb-3">
-            <label for="content" class="form-label">내용</label>
-            <textarea class="form-control" id="content" rows="3" th:field="*{content}" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">수정 완료</button>
-        <a href="/" class="btn btn-secondary">취소</a>
-    </form>
-</div>
-</body>
-</html>
-```
+: 별도의 수정 폼(HTML) 을 생성
+
 
 **1.4. Update Serial Number**
 : 생성 / 삭제 후에도 순차 번호가 갱신되도록 기능 고도화 
 -> 반복 상태 변수 추가
-```html
-<!-- list.html -->
-<tbody>
-    <!-- ⭐ 'item' 과 함께 'stat' 라는 상태 변수를 추가 -->
-    <tr th:each="item, stat : ${guestbooks}">
-        <!-- ⭐ stat.count 를 사용하여 순차 번호를 표시 -->
-        <td th:text="${stat.count}">1</td>
-        <td th:text="${item.author}">작성자</td>
-        <td th:text="${item.content}">내용</td>
-        <td th:text="${item.createdAt}">2024-01-01</td>
-        <td>
-            <a th:href="@{/guestbook/edit/{id}(id=${item.id})}" class="btn btn-warning btn-sm me-1">수정</a>
-            <a th:href="@{/guestbook/delete/{id}(id=${item.id})}" class="btn btn-danger btn-sm">삭제</a>
-        </td>
-    </tr>
-</tbody>
-```
 
-**1.5. Recently Updated Time**
+<br>
+
+### 2. Enhancement of Functions
+
+**2.1. Recently Updated Time**
 : 수정 시 작성 시간 대신 최근 수정 시간으로 갱신되도록 변경
 -> @PreUpdate 어노테이션
-```java
-// Guestbook.java
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
-@Entity
-public class Guestbook
-{
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    private String content;
-    private String author;
+**2.2. Time Format & Adjust Table Layout**
 
-    // 필드명 변경
-    private LocalDateTime lastModifiedAt;
 
-    // 생성 시에도 시간 설정
-    @PrePersist
-    public void onCreate() { this.lastModifiedAt = LocalDateTime.now(); }
-
-    // ⭐ 수정 시에도 시간을 업데이트하는 메소드 추가
-    @PreUpdate
-    public void onUpdate() { this.lastModifiedAt = LocalDateTime.now(); }
-
-    // ... 기존의 Getter/Setter들도 필드명에 맞게 수정
-    public LocalDateTime getLastModifiedAt() { return lastModifiedAt; }
-    public void setLastModifiedAt(LocalDateTime lastModifiedAt) { this.lastModifiedAt = lastModifiedAt; }
-    // ... 나머지 Getter/Setter는 그대로
-}
-```
-
-`list.html` 과 `edit.html` 도 변경점에 맞게 수정
-```html
-<!-- list.html -->
-<td th:text="${item.lastModifiedAt}">2024-01-01</td>
-```
-
-`edit.html` 에서는 사용자가 직접 시간을 수정할 필요 X
--> '작성 시간' 필드 삭제
-
-**1.6. Time Format & Adjust Table Layout**
-```html
-<!-- list.html -->
-<thead>
-    <tr>
-        <th style="width: 5%;">번호</th>
-        <th style="width: 15%;">작성자</th>
-        <!-- ⭐ 내용 칸 너비를 넓힘 -->
-        <th style="width: 55%;">내용</th>
-        <th style="width: 15%;">수정 시간</th>
-        <th style="width: 10%;">기능</th>
-    </tr>
-</thead>
-<tbody>
-    <tr th:each="item, stat : ${guestbooks}">
-        <td th:text="${stat.count}">1</td>
-        <td th:text="${item.author}">작성자</td>
-        <!-- ⭐ 내용은 길어질 수 있으니 td 안에서 그대로 표시 -->
-        <td th:text="${item.content}">내용</td>
-        <!-- ⭐ 시간 포맷을 YYYY-MM-DD HH:MM 으로 변경 -->
-        <td th:text="${#temporals.format(item.lastModifiedAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:34</td>
-        <td>
-            <a th:href="@{/guestbook/edit/{id}(id=${item.id})}" class="btn btn-warning btn-sm me-1">수정</a>
-            <a th:href="@{/guestbook/delete/{id}(id=${item.id})}" class="btn btn-danger btn-sm">삭제</a>
-        </td>
-    </tr>
-</tbody>
-```
-
-**1.7. Post Sorting**
+**2.3. Post Sorting**
 : ID를 기준으로 Repository 에 정렬 기능 추가
 -> Spring Data JPA
 
-```java
-// GuestbookRepository.java
-package com.example.myfirstserver;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+**2.4. Set Time Zone**
+: AWS EC2 사용 시 기본적으로 UTC 시간대 적용 (서버와 로컬의 시간대가 다름)
+-> LocalDateTime > ZonedDateTime 전환
 
-import java.util.List;
+<br>
 
-@Repository
-public interface GuestbookRepository extends JpaRepository<Guestbook, Long>
-{
-    // ⭐ 'id'를 기준으로 내림차순(DESC) 정렬하여 모든 데이터를 가져오는 메소드
-    // JPA가 이 메소드 이름을 보고 "ORDER BY id DESC" 쿼리를 자동으로 만들어줌
-    List<Guestbook> findAllByOrderByIdDesc();
-}
-```
-```java
-// GuestbookController.java
-@GetMapping("/")
-public String index(Model model)
-{
-    // ⭐ 기존 findAll() 대신 새로운 메소드를 호출
-    List<Guestbook> guestbookList = guestbookRepository.findAllByOrderByIdDesc();
+### 3. Improvement Domain Model
+: 방명록을 '포스트(Post)' 형태의 애플리케이션으로 발전시키기
+(`Guestbook`-> `Post`)
 
-    model.addAttribute("guestbooks", guestbookList);
-    return "list";
-}
-```
+**3.1. Separation of Concerns (SoC)**
+- 주요 변경점
+	- Before
+		- `Controller` 가 `Repository` 를 직접 호출하여 데이터를 조작
+		- `Controller` 가 HTTP 처리와 데이터 로직까지 모두 책임
+	- After
+		- `Service` 계층 도입
+		- `Controller` -> `Service` -> `Repository` 순 호출
+		- `Controller` : 오직 HTTP 요청을 받고 응답을 보내는 역할에 집중
+		- `Service` : 실제 데이터 처리하는 핵심 비즈니스 로직
 
-**1.8. Set Time Zone**
-: 
+**3.2. Decoupling Packages**
+- 주요 변경점
+	- Before
+		- 모든 클래스가 하나의 패키지 내에 존재
+	- After
+		- 역할별 패키지 분리
+		- `controller` : 웹 요청/응답 담당
+		- `service` : 비즈니스 로직 담당
+		- `repository` : DB 접근 담당
+		- `domain` : 데이터 모델 (엔티티) 담당
+		- `exception` : 커스텀 예외 클래스 담당
+
+**3.3. Solidifying business logic**
+- 주요 변경점
+	- Before
+		- CRUD 에 대한 별도의 로직이 없거나 Controller 에 산개
+		- 데이터 변경 중 오류 발생 시 일부만 변경될 위험
+	- After
+		- `PostService` 인터페이스 클래스를 생성하고, `PostServiceImpl` 클래스로 별도 구현
+		- `PostService` 내부에 `save`, `updatePost`, `delete` 와 같은 메소드로 로직 분리
+		- `@Transactional` 어노테이션을 도입하여 태스크의 원자성 확보
+
+**3.4. Refining exception handling : Custom Class**
+- 주요 변경점
+	- Before
+		- 존재하지 않는 데이터 요청 시 Spring이 제공하는 오류가 발생
+		- 오류의 원인 찾기 힘듦
+	- After
+		- `PostNotFoundException` 커스텀 예외 클래스 생성
+		- `PostService`에서 데이터를 찾지 못하면 이 예외를 명확히 Throw
 
 ---
 

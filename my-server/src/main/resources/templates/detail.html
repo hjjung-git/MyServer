@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>포스트 상세</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* 본문 내용의 줄바꿈을 그대로 표시하기 위한 스타일 */
+        .post-content {
+            min-height: 300px; /* 내용 영역의 최소 높이 지정 */
+            white-space: pre-wrap; /* textarea에서 입력된 줄바꿈(\n)을 <br> 태그처럼 표시 */
+            word-break: break-word; /* 긴 단어 줄바꿈 */
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- 포스트 헤더: 제목과 수정/삭제 버튼 -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- ⭐ Controller에서 넘겨준 'post' 객체의 title을 표시 -->
+                <h1 th:text="${post.title}">포스트 제목</h1>
+                <div>
+                    <!-- ⭐ 수정 버튼: 해당 포스트의 ID를 가진 수정 페이지로 링크 -->
+                    <a th:href="@{/post/edit/{id}(id=${post.id})}" class="btn btn-warning btn-sm">수정</a>
+                    <!-- ⭐ 삭제 버튼: 해당 포스트의 ID를 가진 삭제 URL로 링크 (확인창 추가) -->
+                    <a th:href="@{/post/delete/{id}(id=${post.id})}" class="btn btn-danger btn-sm"
+                       onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+                </div>
+            </div>
+
+            <!-- 포스트 메타데이터: 작성자와 수정일 -->
+            <div class="mb-4 text-muted">
+                <span>작성자: </span>
+                <span th:text="${post.username}" class="fw-bold">작성자명</span>
+                <span class="ms-3">수정일: </span>
+                <!-- ⭐ 날짜를 보기 좋게 포맷 -->
+                <span th:text="${#temporals.format(post.lastModifiedAt, 'yyyy-MM-dd HH:mm', 'Asia/Seoul')}">2024-01-01 12:34</span>
+            </div>
+
+            <hr>
+
+            <!-- 포스트 본문 내용 -->
+            <div class="card">
+                <!-- ⭐ 'post' 객체의 content를 표시 -->
+                <div class="card-body post-content" th:text="${post.content}">
+                    여기에 포스트 내용이 표시됩니다.
+                </div>
+            </div>
+
+            <!-- 목록으로 돌아가기 버튼 -->
+            <div class="mt-4 text-center">
+                <a href="/main/list" class="btn btn-secondary">목록으로 돌아가기</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
