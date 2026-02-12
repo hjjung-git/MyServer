@@ -16,20 +16,21 @@
 이 프로젝트는 단순한 웹 사이트 개발을 넘어, 하나의 완성된 IT 서비스가 탄생하는 과정 전체를 경험하는 것을 목표로 한다.
 컴퓨터공학과 전공자로서 배운 이론을 실제 서비스에 적용하고, NCS에서 제시하는 5가지 핵심 직무의 역할을 이해하며 통합적인 시각을 기르는 데 중점을 두었다.
 
-### Main Features
+#### Main Features
 - 웹서버 구축 및 관리
 - 웹서버 유지 보수
 - 다양한 포트폴리오 기록
 
----
+#### Contents
+1) Tech Stack
+2) Development Process
+3) Technical Design Document
 
-## Project Architecture
+### Project Milestone
 
-각 개발 단계를 NCS ICT 직무와 명확하게 연계하였다.
+##### Phase 1 : Server Setting
 
-#### Phase 1 : Server Setting
-
-| NCS 직무         | 프로젝트 내 역할               | 관련 기술/키워드                                 |
+| 직무             | 프로젝트 내 역할               | 관련 기술/키워드                                 |
 | :------------- | :---------------------- | :---------------------------------------- |
 | **응용SW엔지니어링**  | 서비스의 핵심 로직 및 API 개발     | Java, Spring Boot, RESTful API            |
 | **DB엔지니어링**    | 데이터 모델링 및 영속성 관리        | H2, JPA, CRUD                             |
@@ -39,9 +40,9 @@
 
 <br>
 
-#### Phase 2 : Server Maintenance
+##### Phase 2 : Server Maintenance
 
-| NCS 직무        | 프로젝트 내 역할          | 관련 기술/키워드                                                      |
+| 직무            | 프로젝트 내 역할          | 관련 기술/키워드                                                      |
 | :------------ | :----------------- | :------------------------------------------------------------- |
 | **응용SW엔지니어링** | 기능 개발 및 코드 관리      | CRUD, Refactoring                                             |
 | **DB엔지니어링**   | 데이터베이스 관리 및 구조     | Backup & Restore, DB Migration                                 |
@@ -81,7 +82,7 @@
 
 # Phase 1 : How to set up my WebServer
 
-## Step 1. Server Testing to Java
+## Step 1. Development Environment Setup & Testing
 
 ### 1. Arranging Development Environment
 
@@ -138,14 +139,14 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 ```
 - H2 DB 를 사용하는 이유 : 설정이 간단하여 런타임 DB 개념을 익히기 좋다.
 
-**1.2. IntelliJ 의** `Maven` **새로고침하여 라이브러리 다운로드**
+**1.2. Refresh `Maven` in IntelliJ to Download Libraries**
 
 <br>
 
 ### 2. DB Setting in `application.properties`
 : DB가 서버 재시작 후에도 데이터를 유지하도록 '파일 기반' 으로 설정
 
-**2.1. Create Temporary File**
+**2.1. Create Persistent Storage File**
 ```properties
 # application.properties 파일에 다음 줄 추가
 spring.datasource.url=jdbc:h2:file:./data/testdb
@@ -178,11 +179,11 @@ package com.example.myfirstserver;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-// 이 인터페이스가 DB에 접근하는 Repository 역할을 한다고 알려줌
 @Repository
-// JpaRepository를 상속받으면, save(), findAll(), findById() 등
-// 기본적인 CRUD 메소드를 자동으로 사용할 수 있게 됨
-public interface GuestbookRepository extends JpaRepository<Guestbook, Long> {
+public interface GuestbookRepository extends JpaRepository<Guestbook, Long>
+{
+	// JpaRepository를 상속받으면, save(), findAll(), findById() 등
+	// 기본적인 CRUD 메소드를 자동으로 사용할 수 있게 됨
 }
 ```
 
@@ -226,13 +227,13 @@ public interface GuestbookRepository extends JpaRepository<Guestbook, Long> {
 </dependency>
 ```
 
-**1.2. IntelliJ 의** `Maven` **새로고침하여 라이브러리 다운로드**
+**1.2. Refresh `Maven` in IntelliJ to Download Libraries**
 
 <br>
 
 ### 2. Modify Controller
 : Controller 는 더 이상 JSON 타입을 반환하지 않음
--> HTML 데이터를 담은 객체를 반환하도록 수정하기
+-> HTML 데이터를 담은 객체를 반환하도록 수정
 
 **2.1. Modify Controller Class (GuestbookController)**
 - 핵심 변경점
@@ -354,7 +355,7 @@ mvn -version
 : 프로젝트를 서버로 옮겨서 실행하기
 
 **4.1. Modify Application Properties**
-: application.properties 파일에 추가하기.
+: `application.properties` 파일에 추가하기.
 ```properties
 server.address=0.0.0.0
 ```
@@ -367,7 +368,7 @@ mvn clean package
 ```
 -> 프로젝트 폴더에 `target` 이라는 폴더가 생기고, 그 안에 `my-server ~ SNAPSHOT.jar` 파일 생성 확인
 
-**4.3. Duplicate Files to Server**
+**4.3. Transfer Files to Server**
 ```bash
 # 새로운 로컬 터미널 실행
 # jar 파일을 서버의 홈 디렉토리로 복사
@@ -452,8 +453,8 @@ sudo certbot --nginx -d [MY_DOMAIN]
 ```
 
 **1.4. Modify Security Group**
-: HTTPS 인증서를 받아 연결하도록 설정하였으니 HTTPS 포트 (443) 를 열어주어야 한다.
--> AWS 보안그룹에서 새로운 인바운드 규칙 추가
+: HTTPS 인증서 연결에 따라 HTTPS 포트 (443) 개방
+-> AWS 보안그룹 새로운 인바운드 규칙 추가
 `유형` : HTTPS
 `포트 범위` : 443
 `소스` : IPv4 Anywhere (0.0.0.0)
@@ -511,7 +512,7 @@ sudo certbot --nginx -d [MY_DOMAIN]
 
 <br>
 
-### 3. Improvement Domain Model
+### 3. Refactoring the Domain Model
 : 방명록을 '포스트(Post)' 형태의 애플리케이션으로 발전시키기
 (`Guestbook`-> `Post`)
 
@@ -538,17 +539,17 @@ sudo certbot --nginx -d [MY_DOMAIN]
 		- `domain` : 데이터 모델 (엔티티) 담당
 		- `exception` : 커스텀 예외 클래스 담당
 
-**3.3. Solidifying business logic**
+**3.3. Solidifying Business Logic**
 - 주요 변경점
 	- Before
 		- CRUD 에 대한 별도의 로직이 없거나 Controller 에 산개
 		- 데이터 변경 중 오류 발생 시 일부만 변경될 위험
 	- After
-		- `PostService` 인터페이스 클래스를 생성하고, `PostServiceImpl` 클래스로 별도 구현
+		- `PostService` 인터페이스와 `PostServiceImpl` 구현체 분리
 		- `PostService` 내부에 `save`, `updatePost`, `delete` 와 같은 메소드로 로직 분리
 		- `@Transactional` 어노테이션을 도입하여 태스크의 원자성 확보
 
-**3.4. Refining exception handling : Custom Class**
+**3.4. Creating Custom Exception Classes
 - 주요 변경점
 	- Before
 		- 존재하지 않는 데이터 요청 시 Spring이 제공하는 오류가 발생
@@ -559,3 +560,72 @@ sudo certbot --nginx -d [MY_DOMAIN]
 
 ---
 
+# Technical Design Document
+
+### 0. Document Info
+-  **Project: my-server**
+- **Version : 1.0.0-SNAPSHOT**
+- **Status : Phase 2 - Application Maintenance (In Progress)**
+
+<br>
+
+## 1. Design Rationale & Trade-offs
+: 설계 결정 근거 및 상충 관계
+
+#### 1.1. Database Strategy : H2 File-based DB
+- **Rationale**
+	- 학습 목적에 맞춰, 별도의 DB 서버 설치 및 설정에 드는 비용 최소화
+	- <u>JPA 및 도메인 모델링 학습에 집중</u>
+	- 파일 기반 (`jdbc:h2:file`) 으로 설정하여 서버 재시동 간 데이터 유지 확보
+- **Trade-offs**
+	- **장점**
+		- Zero-configuration
+		- 빠른 개발 속도
+		- 가벼운 리소스
+	- **단점**
+		- 대용량 트래픽 처리 및 동시성 제어에 취약
+		- 운영 환경(Production) 으로 확장 시 MySQL/PostgreSQL 등으로 이식 비용 발생
+
+#### 1.2. Server-Side Rendering : Thymeleaf
+- **Rationale**
+	- Front/Back 역할 분리 보다, <u>Back-end 서버의 요청-응답 흐름 (MVC) 의 명확한 파악</u>을 우선시
+	- 서버 사이드 렌더링을 통해 SEO(검색 엔진 최적화) 및 초기 로딩 속도 확보 용이
+- **Trade-offs**
+	- **장점**
+		- 백엔드 중심의 개발 용이성
+		- 별도의 API 서버/클라이언트 이원화 불필요
+	- **단점**
+		- UX 측면에서 페이지 전체가 새로고침되어 동적인 UI 구현에 제약
+		- 향후 SPA(React/Vue) 도입 시 구조 변경 필요
+
+#### 1.3. Layered Architecture
+- **Rationale**
+	- 단일 책임 원칙(SRP) 적용하여 Controller-Service-Repository 분리
+	- Service Layer 의 인터페이스 구현을 통해 개방-폐쇠 원칙(OCP) 준수 및 테스트 용이성 확보
+- **Trade-offs**
+	- **장점**
+		- 코드의 가독성, 유지보수성 증가
+		- 향후 기능 변경 시 영향 범위 최소화 (모듈화)
+	- 단점
+		- 적은 규모 대비 초기 작성 코드량(Boilerplate Code) 증가
+<br>
+
+## 2. Architectural Strategy & Characteristics
+: 아키텍처 전략 및 특성
+
+#### 2.1. Evolutionary Design
+: 점진적 설계 지향
+
+- **MVP First** : Phase 1 에서는 구조적 단순함을 유지하여 핵심 기능 작동에 집중하여 개발 초기 복잡도를 낮추고 빠른 배포 달성
+- **Just-in-Time Refactoring** : Phase 2 로 진입하며 계층 분리 등 필요한 시점에 리팩토링 수행하여 오버엔지니어링 방지 및 확장성 확보
+
+#### 2.2. Technical Debt Management
+: 기술 부채 관리
+
+- **Intentional Debt & Repayment** : Phase 1 에서의 빠른 구현을 위해 감수한 계층 구조의 단순화(부채)를 Phase 2 에서 구조적 개선(상환)으로 해소하여 유지보수 비용을 선제적으로 절감
+- **Separation of Concerns** : 객체지향 설계 원칙을 적용하여 관심사를 명확한 분리함. 향후 기술 부채가 누적되는 것을 방지하는 방어적 설계
+
+#### 2.3. Shift-Left Security
+: 보안의 조기 적용
+
+- **Proactive Hardening** : 초기 배포 이전에 HTTPS(SSL) 적용 및 Nginx 리버스 프록시 구성을 완료하여 보안 격차 및 이슈를 사전에 차단
