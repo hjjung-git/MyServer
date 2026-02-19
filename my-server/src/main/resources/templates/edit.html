@@ -9,40 +9,29 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <!-- ⭐ 제목 변경 -->
             <h1>포스트 수정</h1>
             <hr>
 
-            <!--
-                ⭐ th:object="${post}" : 폼 전체가 Controller에서 넘겨준 'post' 객체와 연결됨
-                ⭐ th:action : 수정 요청을 보낼 URL을 설정. 해당 포스트의 ID를 포함.
-            -->
             <form th:action="@{/post/update/{id}(id=${post.id})}" method="post" th:object="${post}">
-                <!--
-                    ⭐ id는 hidden으로 숨겨서 함께 전송.
-                    th:field="*{id}"는 <input type="hidden" name="id" value="..."> 와 동일하게 동작.
-                -->
                 <input type="hidden" th:field="*{id}" />
 
-                <!-- ⭐ 제목 필드 추가 -->
+                <!-- 제목 -->
                 <div class="mb-3">
                     <label for="title" class="form-label">제목</label>
-                    <!--
-                        ⭐ th:field="*{title}" : post.title 필드와 연결되고, 기존 값이 자동으로 채워짐.
-                        id, name, value 속성이 자동으로 설정됨.
-                    -->
-                    <input type="text" class="form-control" id="title" th:field="*{title}" required>
+                    <input type="text" class="form-control" id="title" th:field="*{title}">
+                    <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-danger mt-1"></div>
                 </div>
 
                 <div class="mb-3">
                     <label for="username" class="form-label">작성자</label>
-                    <input type="text" class="form-control" id="username" th:field="*{username}" required>
+                    <input type="text" class="form-control" id="username" th:field="*{username}">
+                    <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger mt-1"></div>
                 </div>
 
                 <div class="mb-3">
                     <label for="content" class="form-label">내용</label>
-                    <!-- ⭐ textarea의 rows를 늘려서 편집 공간 확보 -->
-                    <textarea class="form-control" id="content" rows="15" th:field="*{content}" required></textarea>
+                    <textarea class="form-control" id="content" rows="15" th:field="*{content}"></textarea>
+                    <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="text-danger mt-1"></div>
                 </div>
 
                 <div class="d-flex gap-2">

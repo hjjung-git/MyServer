@@ -616,15 +616,90 @@ sudo certbot --nginx -d [MY_DOMAIN]
 3) `@InjectMocks` 로 `PostServiceImpl` 주입
 4) 테스트 케이스 작성 (성공/실패)
 
+<br>
+
+### 5. Input Validation / Exception Handling
+: 입력값 검증 / 예외 처리 및 에러 페이지 표시
+
+**5.1. Add Dependencies**
+: 입력값 검증을 위한 라이브러리를 추가해야 한다.
+```xml
+<!-- pom.xml -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+```
+
+
+**5.2. Apply Validation Rules in Domain**
+: 현재 프로젝트는 Entity를 그대로 사용 중
+-> `Post` Entity에 검증 어노테이션 추가
+```java
+// 기존 @Column 속성에 validation 어노테이션 추가
+    @NotBlank(message = "제목은 비워둘 수 없습니다.")
+    @Size(max = 100, message = "제목은 100자를 넘을 수 없습니다.")
+    @Column(nullable = false, length = 100)
+    private String title;
+```
+
+
+**5.3. Apply Validation Logic in Controller**
+
+1) 데이터를 주고받기 전에 자동으로 검증 수행
+> [글 작성 처리]
+> `@Valid Post post`: Post 객체를 검증하겠다는 의미
+> `BindingResult bindingResult`: 검증 결과(에러 정보)를 담는 객체
+
+2) HTML View 에서 에러 메세지 출력
+> PostController.java
+> 글쓰기 폼(`write-form`)에 처음 진입할 때 `th:object`를 사용하기 위해
+>  비어있는 `Post` 객체를 Model에 담아줘야 한다.
+
+3) HTML View 수정
+> `write-form.html` 의 `<form>`태그 구조를 Thymeleaf 에 맞게 변경
+> `edit.html`또한 동일
+
+
+**5.4. Create Global Exception Handler**
+: 전역 예외 처리기 생성
+`my_server/exception/` 패키지에 `GlobalExceptionHandler.java` 구성하기
+```java
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    // 1. PostNotFoundException (게시글을 찾을 수 없음) 처리
+    @ExceptionHandler(PostNotFoundException.class)
+    public String handlePostNotFoundException(PostNotFoundException ex, Model model) {
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error/404"; // templates/error/404.html 로 이동
+    }
+
+    // 2. 그 외 모든 Exception (서버 에러 등) 처리
+    @ExceptionHandler(Exception.class)
+    public String handleException(Exception ex, Model model) {
+        model.addAttribute("errorMessage", "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.");
+        return "error/500"; // templates/error/500.html 로 이동
+    }
+}
+```
+
+
+**5.5. Create Custom Error Page**
+
+1) 디렉토리 생성 : `src/main/resources/templates/error/404.html
+2) `404.html` 파일 생성
+3) `500.html` 파일 생성
+
 
 ---
 
 # Technical Design Document
 
 ### 0. Document Info
--  **Project: my-server**
-- **Version : 1.0.0-SNAPSHOT**
-- **Status : Phase 2 - Step 1.4 Completed (Service Layer Testing Done)**
+-  **Project** : my-server
+- **Version** : 1.0.0-SNAPSHOT
+- **Status** : Phase 2 - Step 1.5 Completed (Validation & Exception Handling Done)
 
 <br>
 
@@ -694,3 +769,9 @@ sudo certbot --nginx -d [MY_DOMAIN]
 
 - **Automated Unit Testing** : JUnit 5와 Mockito 를 도입하여 Service 계층 단위 테스트 구현
 - **Living Documentation** : 테스트 코드를 단순한 검증 도구가 아닌, 요구사항의 명세서로 관리
+
+#### 2.5. Robustness & Usability
+: 견고성 및 사용성 확보
+
+- **Centralized Exception Handling**: `@ControllerAdvice`를 도입하여 흩어져 있던 예외 처리 로직을 전역(Global)으로 통합 관리.
+- **Declarative Validation**: Bean Validation(`@Valid`)을 통해 검증 로직을 비즈니스 로직에서 분리하여 선언적으로 처리.

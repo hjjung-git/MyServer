@@ -2,10 +2,12 @@ package com.example.my_server.controller;
 
 import com.example.my_server.service.PostServiceImpl;
 import com.example.my_server.domain.Post;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,18 +53,22 @@ public class PostController
 
     // 쓰기 기능
     @PostMapping("/post/write")
-    public String writePost(@ModelAttribute Post post)
+    public String writePost(@Valid Post post, BindingResult bindingResult)
     {
-        // 1. Service에 새로운 포스트 저장을 요청
-        postServiceImpl.save(post);
+        if (bindingResult.hasErrors())
+        { return "write-form"; }
 
-        // 2. 저장이 완료되면 목록 페이지로 이동
+        postServiceImpl.save(post);
         return "redirect:/main/list";
     }
 
     // 글쓰기 폼 페이지
     @GetMapping("/post/write/form")
-    public String writeForm() { return "write-form"; }
+    public String writeForm(Model model)
+    {
+        model.addAttribute("post", new Post());
+        return "write-form";
+    }
 
     // 수정 폼 보여주기
     @GetMapping("/post/edit/{id}")
@@ -80,11 +86,12 @@ public class PostController
 
     // 수정 처리 기능
     @PostMapping("/post/update/{id}")
-    public String update(@PathVariable Long id, @ModelAttribute Post post)
+    public String update(@PathVariable Long id, @Valid Post post, BindingResult bindingResult)
     {
-        postServiceImpl.updatePost(id, post);
+        if (bindingResult.hasErrors())
+        { return "edit"; }
 
-        // 수정이 완료되면 해당 포스트의 상세 페이지로 리다이렉트
+        postServiceImpl.updatePost(id, post);
         return "redirect:/post/detail/" + id;
     }
 

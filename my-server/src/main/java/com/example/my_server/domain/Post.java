@@ -1,6 +1,8 @@
 package com.example.my_server.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.ZonedDateTime;
@@ -15,12 +17,16 @@ public class Post
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 글 번호
 
+    @NotBlank(message = "제목은 비워둘 수 없습니다.")
+    @Size(max = 100, message = "제목은 100자를 넘을 수 없습니다.")
     @Column(nullable = false, length = 100)
     private String title; // 새로 추가된 제목 필드
 
+    @NotBlank(message = "작성자 이름은 비워둘 수 없습니다.")
     @Column(nullable = false)
     private String username; // 작성자
 
+    @NotBlank(message = "내용은 비워둘 수 없습니다.")
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content; // 글 내용
 
@@ -39,6 +45,7 @@ public class Post
     }
 
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getUsername() { return username; }
