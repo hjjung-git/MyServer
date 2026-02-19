@@ -663,7 +663,7 @@ sudo certbot --nginx -d [MY_DOMAIN]
 
 **5.4. Create Global Exception Handler**
 : 전역 예외 처리기 생성
-`my_server/exception/` 패키지에 `GlobalExceptionHandler.java` 구성하기
+> `my_server/exception/` 패키지에 `GlobalExceptionHandler.java` 구성하기
 ```java
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -691,6 +691,66 @@ public class GlobalExceptionHandler {
 2) `404.html` 파일 생성
 3) `500.html` 파일 생성
 
+<br>
+
+### 6. Post Indexing
+: 특정 포스팅을 제목이나 내용을 기준으로 검색하는 기능 추가
+
+**6.1. Repository Layer : Define Indexing Query Method**
+: Spring Data JPA 는 메소드명 만으로 자동으로 쿼리를 만들어준다.
+> `PostRepository.java` 에 검색용 메소드 추가
+```java
+public interface PostRepository extends JpaRepository<Post, Long> {
+    // ✅ 검색 기능: 제목(title) 또는 내용(content)에 키워드가 포함된 게시글 조회
+    // Containing: LIKE '%keyword%' 와 같은 역할
+    // Or: 두 조건 중 하나라도 만족하면 조회
+    Page<Post> findByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
+}
+```
+
+
+**6.2. Service Layer : Process Indexing Logic**
+: 검색어(Keyword) 의 유무에 따라 다른 로직 수행
+```java
+public interface PostService // 기존 list 메소드 수정 ... 나머지 메소드 동일
+{ Page<Post> list(String keyword, Pageable pageable); }
+
+@Override
+    public Page<Post> list(String keyword, Pageable pageable)
+    {
+        // 1. 검색어가 없거나 공백일 경우 -> 전체 조회
+        if (keyword == null || keyword.trim().isEmpty())
+        { return postRepository.findAll(pageable); }
+        
+        // 2. 검색어가 있을 경우 -> 제목 또는 내용에서 검색
+        // (파라미터로 keyword를 두 번 넘겨서 제목에서도 찾고 내용에서도 찾도록 함)
+        return postRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+    }
+```
+
+
+**6.3. Controller Layer : Receive `keyword` Parameter**
+: 클라이언트에서 보낸 검색어(`keyword`) 를 받아서 Service 로 넘겨줘야 함.
+```java
+@GetMapping("/main/list")
+    public String list(Model model,
+                       @RequestParam(value = "keyword", required = false) String keyword, // 검색어 파라미터 추가
+                       @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        // 검색어를 포함하여 Service 호출
+        Page<Post> postsPage = postServiceImpl.list(keyword, pageable);
+
+        model.addAttribute("posts", postsPage);
+        model.addAttribute("keyword", keyword); // 뷰에서 검색어 유지를 위해 전달
+
+        return "list";
+    }
+```
+
+
+**6.4. View Layer : Paging & Linking**
+: 사용자가 사용할 수 있는 검색어 입력창 만들고, 페이지를 넘겨도 검색어가 유지되도록 처리
+> `list.html` 수정
 
 ---
 

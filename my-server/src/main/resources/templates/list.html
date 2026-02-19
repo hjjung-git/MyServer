@@ -19,7 +19,19 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center my-4">
         <h1>포스트 목록</h1>
-        <!-- ⭐ 글쓰기 버튼을 우측 상단에 추가 -->
+
+        <!-- 검색창 -->
+        <form th:action="@{/main/list}" method="get" class="row g-3 mb-3">
+            <div class="col-auto">
+                <input type="text" name="keyword" th:value="${keyword}" class="form-control" placeholder="검색어를 입력하세요">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-secondary">검색</button>
+                <a th:href="@{/main/list}" class="btn btn-outline-secondary">전체 보기</a>
+            </div>
+        </form>
+
+        <!-- 글쓰기 버튼 -->
         <a href="/post/write/form" class="btn btn-primary">글쓰기</a>
     </div>
 
@@ -56,27 +68,32 @@
         <ul class="pagination justify-content-center">
             <!-- '<<' (첫 페이지) 버튼 -->
             <li class="page-item" th:classappend="${!posts.hasPrevious()} ? 'disabled'">
-                <a class="page-link" th:href="@{/main/list(page=0)}" tabindex="-1" aria-disabled="true"><<</a>
+                <!-- keyword 파라미터 추가 -->
+                <a class="page-link" th:href="@{/main/list(page=0, keyword=${keyword})}" tabindex="-1" aria-disabled="true"><<</a>
             </li>
             <!-- '<' (이전 페이지) 버튼 -->
             <li class="page-item" th:classappend="${!posts.hasPrevious()} ? 'disabled'">
-                <a class="page-link" th:href="@{/main/list(page=${posts.number - 1})}"><</a>
+                <!-- keyword 파라미터 추가 -->
+                <a class="page-link" th:href="@{/main/list(page=${posts.number - 1}, keyword=${keyword})}"><</a>
             </li>
 
             <!-- 페이지 번호 루프 -->
             <li th:each="i: ${#numbers.sequence(0, posts.totalPages - 1)}"
                 th:classappend="${i == posts.number} ? 'active'"
                 class="page-item">
-                <a class="page-link" th:href="@{/main/list(page=${i})}" th:text="${i + 1}">1</a>
+                <!-- keyword 파라미터 추가 -->
+                <a class="page-link" th:href="@{/main/list(page=${i}, keyword=${keyword})}" th:text="${i + 1}">1</a>
             </li>
 
             <!-- '>' (다음 페이지) 버튼 -->
             <li class="page-item" th:classappend="${!posts.hasNext()} ? 'disabled'">
-                <a class="page-link" th:href="@{/main/list(page=${posts.number + 1})}">></a>
+                <!-- keyword 파라미터 추가 -->
+                <a class="page-link" th:href="@{/main/list(page=${posts.number + 1}, keyword=${keyword})}">></a>
             </li>
             <!-- '>>' (마지막 페이지) 버튼 -->
             <li class="page-item" th:classappend="${!posts.hasNext()} ? 'disabled'">
-                <a class="page-link" th:href="@{/main/list(page=${posts.totalPages - 1})}">>></a>
+                <!-- keyword 파라미터 추가 -->
+                <a class="page-link" th:href="@{/main/list(page=${posts.totalPages - 1}, keyword=${keyword})}">>></a>
             </li>
         </ul>
     </nav>

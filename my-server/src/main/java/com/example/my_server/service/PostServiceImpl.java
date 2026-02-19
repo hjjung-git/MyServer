@@ -20,8 +20,13 @@ public class PostServiceImpl implements PostService
     { this.postRepository = postRepository; }
 
     @Override
-    public Page<Post> list(Pageable pageable)
-    { return postRepository.findAll(pageable); }
+    public Page<Post> list(String keyword, Pageable pageable) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return postRepository.findAll(pageable);
+        }
+
+        return postRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+    }
 
     // ID로 포스트 찾기
     @Override

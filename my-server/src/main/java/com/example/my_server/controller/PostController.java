@@ -26,13 +26,15 @@ public class PostController
 
     @GetMapping("/main/list")
     public String list(Model model,
+                       @RequestParam(value = "keyword", required = false) String keyword,
                        @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable)
     {
         // 1. Service를 통해 모든 포스트 목록을 가져옴
-        Page<Post> postsPage = postServiceImpl.list(pageable);
+        Page<Post> postsPage = postServiceImpl.list(keyword, pageable);
 
         // 2. 가져온 포스트 목록을 "posts"라는 이름으로 View에 전달
         model.addAttribute("posts", postsPage);
+        model.addAttribute("keyword", keyword);
 
         // 3. list.html을 렌더링
         return "list";
