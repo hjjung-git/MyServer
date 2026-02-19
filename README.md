@@ -693,10 +693,10 @@ public class GlobalExceptionHandler {
 
 <br>
 
-### 6. Post Indexing
+### 6. Post Search Functionality
 : 특정 포스팅을 제목이나 내용을 기준으로 검색하는 기능 추가
 
-**6.1. Repository Layer : Define Indexing Query Method**
+**6.1. Repository Layer : Define Searching Query Method**
 : Spring Data JPA 는 메소드명 만으로 자동으로 쿼리를 만들어준다.
 > `PostRepository.java` 에 검색용 메소드 추가
 ```java
@@ -709,7 +709,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 ```
 
 
-**6.2. Service Layer : Process Indexing Logic**
+**6.2. Service Layer : Process Searching Logic**
 : 검색어(Keyword) 의 유무에 따라 다른 로직 수행
 ```java
 public interface PostService // 기존 list 메소드 수정 ... 나머지 메소드 동일
@@ -759,7 +759,7 @@ public interface PostService // 기존 list 메소드 수정 ... 나머지 메�
 ### 0. Document Info
 -  **Project** : my-server
 - **Version** : 1.0.0-SNAPSHOT
-- **Status** : Phase 2 - Step 1.5 Completed (Validation & Exception Handling Done)
+- **Status** : Phase 2 - Step 1.6 Completed (Search Functionality Done)
 
 <br>
 
@@ -835,3 +835,9 @@ public interface PostService // 기존 list 메소드 수정 ... 나머지 메�
 
 - **Centralized Exception Handling**: `@ControllerAdvice`를 도입하여 흩어져 있던 예외 처리 로직을 전역(Global)으로 통합 관리.
 - **Declarative Validation**: Bean Validation(`@Valid`)을 통해 검증 로직을 비즈니스 로직에서 분리하여 선언적으로 처리.
+
+#### 2.6. Searchability & State Management
+: 검색 기능 및 상태 관리
+
+- **Dynamic Querying**: Spring Data JPA의 Method Naming Convention을 활용하여 별도의 쿼리 작성 없이 동적 검색 기능 구현.
+- **State Persistence**: 페이징 처리 시 검색 키워드(`keyword`)를 URL 파라미터로 전달하여, 페이지 이동 간에도 검색 컨텍스트가 끊기지 않도록 설계.
