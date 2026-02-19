@@ -89,8 +89,10 @@
 **1.1. JDK Installation**
 : Java OpenJDK 21.0.2 (LTS version)
 
+
 **1.2. IDE Installation**
 : IntelliJ IDEA (Community Edition)
+
 
 **1.3. Build Tools Explained**
 : Maven 이나 Gradle 은 프로젝트에 필요한 라이브러리를 자동으로 다운로드하고 관리해주는 도구이다.
@@ -108,6 +110,7 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 > Packaging : Jar  
 > Configuration : Properties  
 > Dependencies : Spring Web  
+
 
 **2.2. Server run & test**
 ~ http://localhost:8080/hello
@@ -139,6 +142,7 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 ```
 - H2 DB 를 사용하는 이유 : 설정이 간단하여 런타임 DB 개념을 익히기 좋다.
 
+
 **1.2. Refresh `Maven` in IntelliJ to Download Libraries**
 
 <br>
@@ -151,6 +155,7 @@ Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 # application.properties 파일에 다음 줄 추가
 spring.datasource.url=jdbc:h2:file:./data/testdb
 ```
+
 
 **2.2. Add Auto-Create DDL Setting**
 ```properties
@@ -201,8 +206,10 @@ public interface GuestbookRepository extends JpaRepository<Guestbook, Long>
 
 **6.1. Run Server**
 
+
 **6.2. Create Data in DB**
 : `http://localhost:8080/guestbook/write?author=테스트&content=첫번째 글입니다.`
+
 
 **6.3. Check the Data Persistence**
 : `http://localhost:8080/guestbook/list`
@@ -226,6 +233,7 @@ public interface GuestbookRepository extends JpaRepository<Guestbook, Long>
     <artifactId>spring-boot-starter-thymeleaf</artifactId>
 </dependency>
 ```
+
 
 **1.2. Refresh `Maven` in IntelliJ to Download Libraries**
 
@@ -253,6 +261,7 @@ public interface GuestbookRepository extends JpaRepository<Guestbook, Long>
 `src/main/resources`디렉토리 내 `templates` 폴더 생성
 (Spring Boot 가 여기서 HTML 파일을 찾는다.)
 
+
 **3.2. Configure `list.html`**
 : 화면에 표시할 메인 UI 를 HTML 파일을 생성해 구현
 
@@ -279,28 +288,35 @@ public interface GuestbookRepository extends JpaRepository<Guestbook, Long>
 **1.1 AWS Management Console Log-in**
 : aws.amazon.com 에 로그인하여 **EC2** 를 찾는다.
 
+
 **1.2. EC2 Instance Start**
 : EC2 대시보드에서 '인스턴스 시작' 버튼 클릭
 
+
 **1.3. Set Name (Tag)**
 : '이름' 필드에 이름 설정 (`my-web-server`)
+
 
 **1.4. Select AMI**
 : 'Amazon Machine Image (AMI)' 검색창에 `Amazon Linux` 를 검색하고,
 **'Amazon Linux 2023 AMI'** 선택
 
+
 **1.5. Select Instance Type**
 : `t2.micro`또는 `t3.micro` 선택
+
 
 **1.6. Create Key Pair (Password)**
 : **새 키 페어 생성** 을 클릭하여, 키 이름을 짓고 생성.
 ~ `my-server-key.pem` 파일이 자동 다운로드 (**잃어버리면 안된다!**)
+
 
 **1.7. Set Firewall (Secure Group)**
 : '보안 그룹 규칙' 에서 다음 세 가지의 규칙 추가
   - **규칙 1** : 유형 `SSH` , 소스 `내 IP` (나의 컴퓨터에서만 SSH 접속)
   - **규칙 2** : 유형 `HTTP`, 소스 `위치 무관` (아무나 HTTP로 접속 가능)
   - **규칙 3** : 유형 `사용자정의 TCP`, 포트 범위 `8080`, 소스 `위치 무관`
+
 
 **1.8. Start Instance**
 
@@ -312,11 +328,13 @@ public interface GuestbookRepository extends JpaRepository<Guestbook, Long>
 **2.1. Check Public IP**
 : EC2 인스턴스의 정보 중 **'Public IPv4 주소'** 를 복사해둔다.
 
+
 **2.2. Set Authorization of Key File**
 ```bash
 # 키 파일 권한 변경 (나만 읽을 수 있도록)
 chmod 400 my-server-key.pem
 ```
+
 
 **2.3. Access SSH**
 ```bash
@@ -333,15 +351,18 @@ ssh -i my-server-key.pem ec2-user@[MY_PUBLIC_IP]
 sudo yum update -y
 ```
 
+
 **3.2. Install Java 21**
 ```bash
 sudo yum install java-21-amazon-corretto -y
 ```
 
+
 **3.3. Install Maven**
 ```bash
 sudo yum install maven -y
 ```
+
 
 **3.4. Check Installations**
 ```bash
@@ -360,6 +381,7 @@ mvn -version
 server.address=0.0.0.0
 ```
 
+
 **4.2. Build Project on Local**
 ```bash
 # IntelliJ 내 로컬 터미널에서 실행
@@ -368,12 +390,14 @@ mvn clean package
 ```
 -> 프로젝트 폴더에 `target` 이라는 폴더가 생기고, 그 안에 `my-server ~ SNAPSHOT.jar` 파일 생성 확인
 
+
 **4.3. Transfer Files to Server**
 ```bash
 # 새로운 로컬 터미널 실행
 # jar 파일을 서버의 홈 디렉토리로 복사
 scp -i my-web-key.pem /path/to/your/project/target/my-...-SNAPSHOT.jar ec2-user@[MY_PUBLIC_IP]:~/
 ```
+
 
 **4.4. Run Application in Server**
 ```bash
@@ -394,6 +418,7 @@ nohup java -jar my-server-0.0.1-SNAPSHOT.jar &
 **5.1. Assign Elastic IP**
 : EC2 서버에 연결할 때마다 동적 IP 사용으로 퍼블릭 IPv4 주소가 변경된다.
 -> AWS 에서 **'Elasic IP'** 를 할당받아 인스턴스에 연결한다.
+
 
 **5.2. Set Domain**
 : 순수 IP 주소가 아닌 도메인 이름을 구하여 연결한다.
@@ -440,8 +465,10 @@ server {
 sudo systemctl restart nginx
 ```
 
+
 **1.2. Set Domain**
 : 무료 도메인을 발급받거나 도메인을 구매하여 DNS를 통해 EC2의 퍼블릭 IPv4 주소를 연결시킨다.
+
 
 **1.3. Get Free SSL Certification**
 ```bash
@@ -451,6 +478,7 @@ sudo dnf install -y certbot python3-certbot-nginx
 # 인증서 발급 및 설치
 sudo certbot --nginx -d [MY_DOMAIN]
 ```
+
 
 **1.4. Modify Security Group**
 : HTTPS 인증서 연결에 따라 HTTPS 포트 (443) 개방
@@ -527,6 +555,7 @@ sudo certbot --nginx -d [MY_DOMAIN]
 		- `Controller` : 오직 HTTP 요청을 받고 응답을 보내는 역할에 집중
 		- `Service` : 실제 데이터 처리하는 핵심 비즈니스 로직
 
+
 **3.2. Decoupling Packages**
 - 주요 변경점
 	- Before
@@ -539,6 +568,7 @@ sudo certbot --nginx -d [MY_DOMAIN]
 		- `domain` : 데이터 모델 (엔티티) 담당
 		- `exception` : 커스텀 예외 클래스 담당
 
+
 **3.3. Solidifying Business Logic**
 - 주요 변경점
 	- Before
@@ -549,6 +579,7 @@ sudo certbot --nginx -d [MY_DOMAIN]
 		- `PostService` 내부에 `save`, `updatePost`, `delete` 와 같은 메소드로 로직 분리
 		- `@Transactional` 어노테이션을 도입하여 태스크의 원자성 확보
 
+
 **3.4. Creating Custom Exception Classes
 - 주요 변경점
 	- Before
@@ -558,6 +589,34 @@ sudo certbot --nginx -d [MY_DOMAIN]
 		- `PostNotFoundException` 커스텀 예외 클래스 생성
 		- `PostService`에서 데이터를 찾지 못하면 이 예외를 명확히 Throw
 
+<br>
+
+### 4. Automated Testing
+: 코드 품질을 보증하기 위한 코드 테스트를 자동화
+
+**4.1. Test Environment Setup**
+: `pom.xml` 내 Spring Boot 테스트를 위한 의존성 포함 여부 확인
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+</dependency>
+```
+- JUnit5, Mockito, AssertJ 등이 포함
+
+
+**4.2. Service Layer Unit Testing**
+: **Mockito** 를 사용하여 `Repository` 를 Mock 으로 만들기
+-> 실제로 DB에 접근하지 않고 로직을 빠르게 검증 가능
+
+- 작성 순서
+1) 테스트 클래스 생성
+2) `@Mock` 으로 `PostRepository` 모킹
+3) `@InjectMocks` 로 `PostServiceImpl` 주입
+4) 테스트 케이스 작성 (성공/실패)
+
+
 ---
 
 # Technical Design Document
@@ -565,7 +624,7 @@ sudo certbot --nginx -d [MY_DOMAIN]
 ### 0. Document Info
 -  **Project: my-server**
 - **Version : 1.0.0-SNAPSHOT**
-- **Status : Phase 2 - Application Maintenance (In Progress)**
+- **Status : Phase 2 - Step 1.4 Completed (Service Layer Testing Done)**
 
 <br>
 
@@ -629,3 +688,9 @@ sudo certbot --nginx -d [MY_DOMAIN]
 : 보안의 조기 적용
 
 - **Proactive Hardening** : 초기 배포 이전에 HTTPS(SSL) 적용 및 Nginx 리버스 프록시 구성을 완료하여 보안 격차 및 이슈를 사전에 차단
+
+#### 2.4. Test-Driven Quality Assurance
+: 테스트 주도 품질 보증
+
+- **Automated Unit Testing** : JUnit 5와 Mockito 를 도입하여 Service 계층 단위 테스트 구현
+- **Living Documentation** : 테스트 코드를 단순한 검증 도구가 아닌, 요구사항의 명세서로 관리
