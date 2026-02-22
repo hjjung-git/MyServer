@@ -6,29 +6,33 @@
 ![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
 ![H2 Database](https://img.shields.io/badge/H2-blue)
 
-> NCS ICT 직무(응용SW, DB, 보안, UI/UX, IT시스템관리) 를 연계하여,
+> NCS ICT 직무(응용SW, DB, 보안, UI/UX, IT시스템관리) 를 연계하여  
 > 처음부터 끝까지 직접 구축해보는 나만의 웹 서버 프로젝트
+
+<br>
 
 ---
 
-## Project Overview
+# Project Overview
 
 이 프로젝트는 단순한 웹 사이트 개발을 넘어, 하나의 완성된 IT 서비스가 탄생하는 과정 전체를 경험하는 것을 목표로 한다.
 컴퓨터공학과 전공자로서 배운 이론을 실제 서비스에 적용하고, NCS에서 제시하는 5가지 핵심 직무의 역할을 이해하며 통합적인 시각을 기르는 데 중점을 두었다.
 
-#### Main Features
+### Main Features
 - 웹서버 구축 및 관리
 - 웹서버 유지 보수
 - 다양한 포트폴리오 기록
 
-#### Contents
-1) Tech Stack
-2) Development Process
-3) Technical Design Document
+### Contents
+1) **Tech Stack**
+2) **Development Process**
+3) **Technical Design Document**
 
-### Project Milestone
+<br>
 
-##### Phase 1 : Server Setting
+## Project Milestone
+
+#### Phase 1 : Server Setting
 
 | 직무             | 프로젝트 내 역할               | 관련 기술/키워드                                 |
 | :------------- | :---------------------- | :---------------------------------------- |
@@ -40,20 +44,23 @@
 
 <br>
 
-##### Phase 2 : Server Maintenance
+#### Phase 2 : Server Maintenance
 
 | 직무            | 프로젝트 내 역할          | 관련 기술/키워드                                                      |
 | :------------ | :----------------- | :------------------------------------------------------------- |
-| **응용SW엔지니어링** | 기능 개발 및 코드 관리      | CRUD, Refactoring                                             |
+| **응용SW엔지니어링** | 기능 개발 및 코드 관리      | CRUD, Refactoring                                              |
 | **DB엔지니어링**   | 데이터베이스 관리 및 구조     | Backup & Restore, DB Migration                                 |
 | **IT시스템관리**   | 인프라 엔지니어링 및 보안     | Security Patch, Log Management, Resource Monitoring            |
 | **IT시스템관리**   | DevOps 엔지니어링 및 자동화 | CI/CD, GitHub Actions, Automated Testing, Automated Deployment |
+
+<br>
 
 ---
 
 ## Tech Stack
 
 - **OS**
+	- `Windows 11 Home x64 (24H2)`
 	- `macOS 26 Tahoe`
 - **Backend**
 	- Runtime / Language
@@ -78,42 +85,44 @@
 	- Version Control
 		- `GitHub`
 
+<br>
+
 ---
 
 # Phase 1 : How to set up my WebServer
 
 ## Step 1. Development Environment Setup & Testing
 
-### 1. Arranging Development Environment
-
-**1.1. JDK Installation**
-: Java OpenJDK 21.0.2 (LTS version)
-
-
-**1.2. IDE Installation**
-: IntelliJ IDEA (Community Edition)
-
-
-**1.3. Build Tools Explained**
-: Maven 이나 Gradle 은 프로젝트에 필요한 라이브러리를 자동으로 다운로드하고 관리해주는 도구이다.
-Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
+> ### 1. Arranging Development Environment
+>
+>> **1.1. JDK Installation**  
+>> : Java OpenJDK 21.0.2 (LTS version)
+>
+>
+>> **1.2. IDE Installation**  
+>> : IntelliJ IDEA (Community Edition)
+>
+>
+>> **1.3. Build Tools Explained**  
+>> : Maven 이나 Gradle 은 프로젝트에 필요한 라이브러리를 자동으로 다운로드하고 관리해주는 도구이다.  
+>> Spring Boot 프로젝트를 생성하면 자동으로 포함된다.
 
 <br>
 
-### 2. First Initializing Spring Boot
-
-**2.1. Generate Spring Boot project to Spring Initializer**
-~ https://start.spring.io/
-> Project : Maven Project  
-> Language : Java  
-> Spring Boot version : 4.0.0  
-> Packaging : Jar  
-> Configuration : Properties  
-> Dependencies : Spring Web  
-
-
-**2.2. Server run & test**
-~ http://localhost:8080/hello
+>### 2. First Initializing Spring Boot
+>
+>> **2.1. Generate Spring Boot project to Spring Initializer**  
+>> ~ https://start.spring.io/  
+>> **Project** : Maven Project  
+>> **Language** : Java  
+>> **Spring Boot version** : 4.0.0  
+>> **Packaging** : Jar  
+>> **Configuration** : Properties  
+>> **Dependencies** : Spring Web  
+>
+>
+>> **2.2. Server run & test**  
+>> ~ http://localhost:8080/hello
 
 <br>
 
@@ -497,7 +506,7 @@ sudo certbot --nginx -d [MY_DOMAIN]
 ## Step 1. Application Maintenance
 : 사용자 친화적인 완성도 있는 서비스 제공
 
-### 1. Implement Full CRUD
+### 1. Implement Full CRUD
 : 현재 내 웹서버는 Create(글쓰기) 와 Read(목록 보기) 만 가능하다.
 -> **Update(수정)** 과 **Delete(삭제)** 기능 추가
 
@@ -523,7 +532,7 @@ sudo certbot --nginx -d [MY_DOMAIN]
 
 **2.1. Recently Updated Time**
 : 수정 시 작성 시간 대신 최근 수정 시간으로 갱신되도록 변경
--> @PreUpdate 어노테이션
+-> `@PreUpdate` 어노테이션
 
 
 **2.2. Time Format & Adjust Table Layout**
@@ -580,7 +589,7 @@ sudo certbot --nginx -d [MY_DOMAIN]
 		- `@Transactional` 어노테이션을 도입하여 태스크의 원자성 확보
 
 
-**3.4. Creating Custom Exception Classes
+**3.4. Creating Custom Exception Classes**
 - 주요 변경점
 	- Before
 		- 존재하지 않는 데이터 요청 시 Spring이 제공하는 오류가 발생
@@ -647,17 +656,17 @@ sudo certbot --nginx -d [MY_DOMAIN]
 **5.3. Apply Validation Logic in Controller**
 
 1) 데이터를 주고받기 전에 자동으로 검증 수행
-> [글 작성 처리]
+> - 글 작성 처리  
 > `@Valid Post post`: Post 객체를 검증하겠다는 의미
 > `BindingResult bindingResult`: 검증 결과(에러 정보)를 담는 객체
 
 2) HTML View 에서 에러 메세지 출력
 > PostController.java
-> 글쓰기 폼(`write-form`)에 처음 진입할 때 `th:object`를 사용하기 위해
->  비어있는 `Post` 객체를 Model에 담아줘야 한다.
+> 글쓰기 폼(`write-form`)에 처음 진입할 때 `th:object`를 사용하기 위해  
+> 비어있는 `Post` 객체를 Model에 담아줘야 한다.
 
 3) HTML View 수정
-> `write-form.html` 의 `<form>`태그 구조를 Thymeleaf 에 맞게 변경
+> `write-form.html` 의 `<form>`태그 구조를 Thymeleaf 에 맞게 변경  
 > `edit.html`또한 동일
 
 
