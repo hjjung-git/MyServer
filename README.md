@@ -126,98 +126,50 @@
 
 <br>
 
-## Step 2. DB Engineering to H2 DB
+## Step 2. DB Engineering (H2)
 ~ https://www.h2database.com/html/main.html
 
-### 1. Add DB Dependency
-> H2 Database
+### 1. Configuration
 
-#### 1.1. Add Following Dependencies in `pom.xml`
-```xml
-<!-- JPA: Java 객체와 DB 테이블을 자동으로 매핑해주는 도구 -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-data-jpa</artifactId>
-</dependency>
+#### 1.1. Dependencies (`pom.xml`)
 
-<!-- H2 Database: 개발 및 테스트용으로 매우 가벼운 인메모리 DB -->
-<dependency>
-    <groupId>com.h2database</groupId>
-    <artifactId>h2</artifactId>
-    <scope>runtime</scope>
-</dependency>
-```
+> `spring-boot-starter-data-jpa` (JPA)  
+> `h2`(In-memory DB)
 - H2 DB 를 사용하는 이유 : 설정이 간단하여 런타임 DB 개념을 익히기 좋다.
 
-#### 1.2. Refresh `Maven` in IntelliJ to Download Libraries
-
-
-<br>
-
-### 2. DB Setting in `application.properties`
-: DB가 서버 재시작 후에도 데이터를 유지하도록 '파일 기반' 으로 설정
-
-#### 2.1. Create Persistent Storage File
+#### 1.2. Settings (application.properties)
 ```properties
-# application.properties 파일에 다음 줄 추가
+# File-based DB for data persistence
 spring.datasource.url=jdbc:h2:file:./data/testdb
-```
-
-#### 2.2. Add Auto-Create DDL Setting
-```properties
-# application.properties 파일에 다음 줄 추가
+# Auto DDL (Create/Update tables)
 spring.jpa.hibernate.ddl-auto=update
 ```
-- create : 서버 시작마다 새로운 테이블을 생성 (DB의 영속성 위반)
-- <u>update</u> : 시작 시 테이블이 없다면 생성 / 있다면 수정하는 방식
 
 <br>
 
-### 3. Structure a Data Model (Entity)
+### 2. Implementation
 
-#### 3.1. Create New Java Class (Guestbook)
+#### 2.1. Domain (Entity)
 : 새로운 domain 클래스 생성 및 구성  
 -> Guestbook 클래스는 데이터 모델(엔티티)를 구성하는 클래스가 된다.
 
-<br>
+>Create New Java Class (`Guestbook.java`)
 
-### 4. Design Data Access Layer (Repository)
+#### 2.2. Repository
+: `JpaRepository`상속을 통한 CRUD 메소드 자동 생성
 
-#### 4.1. Create New Java Interface (GuestbookRepository)
-```java
-package com.example.myfirstserver;
+> Create New Java Class (`GuestbookRepository.java`)
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+#### 2.3. Controller
+: HTTP 요청 처리 및 비즈니스 로직 구현
 
-@Repository
-public interface GuestbookRepository extends JpaRepository<Guestbook, Long>
-{
-	// JpaRepository를 상속받으면, save(), findAll(), findById() 등
-	// 기본적인 CRUD 메소드를 자동으로 사용할 수 있게 됨
-}
-```
+> Create New Java Class (`GuestbookController.java`)
 
 <br>
 
-### 5. Connecting the Controller to the Database (Controller)
-
-#### 5.1. Create New Java Class (GuestbookController)
-: 새로운 Controller 클래스 생성 및 구성  
--> Controller 클래스는 HTTP 요청 및 처리, 비즈니스 로직이 구현되어 있다.
-
-<br>
-
-### 6. DB Test
-
-#### 6.1. Run Server
-
-#### 6.2. Create Data in DB
-~ http://localhost:8080/guestbook/write?author=테스트&content=첫번째글입니다.
-
-#### 6.3. Check the Data Persistence
-~ http://localhost:8080/guestbook/list  
-서버를 껐다 켠 후에도 데이터가 보존되는지 확인
+### 3. Verification
+- 서버 실행 후 데이터 생성 (`/guestbook/write`)
+- 서버 재시작 후 <u>데이터 유지(Persistence)</u> 확인
 
 <br>
 
@@ -227,54 +179,24 @@ public interface GuestbookRepository extends JpaRepository<Guestbook, Long>
 
 ## Step 3. UI/UX Engineering
 
-### 1. Add Thymeleaf Dependency
+### 1. Configuration
 
-#### 1.1. Add Following Dependencies in `pom.xml`
-```xml
-<!-- Thymeleaf: 서버에서 HTML을 동적으로 생성해주는 템플릿 엔진 -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-thymeleaf</artifactId>
-</dependency>
-```
+#### 1.1. Dependencies (`pom.xml`)
 
-#### 1.2. Refresh `Maven` in IntelliJ to Download Libraries
+> `spring-boot-starter-thymeleaf`(Template Engine)
 
 <br>
 
-### 2. Modify Controller
-: Controller 는 더 이상 JSON 타입을 반환하지 않음  
--> HTML 데이터를 담은 객체를 반환하도록 수정
-
-#### 2.1. Modify Controller Class (GuestbookController)
-- **핵심 변경점**
-	- `@RestController`-> `@Controller`
-	- 반환 타입 : `Guestbook` (JSON) -> `String` (HTML 파일 이름)
-	- `Model` 객체를 사용하여 데이터를 View로 전달
-	- `@PostMapping` 을 사용하여 폼 데이터 처리
-	- `return "redirect:/";` : 작업 후 홈페이지로 리디렉션
+### 2. Controller Logic
+- **Annotation** : `@RestConroller` -> `@Controller` 변경
+- **Return Type** : JSON 객체 -> HTML 파일 이름 (`String`) 반환
+- **Data Delivery** : `Model`객체를 사용하여 View로 데이터 전달
 
 <br>
 
-### 3. Configure HTML Page (View)
-: Controller 가 반환하는 HTML 파일을 만드는 단계
-
-#### 3.1. Configure Thymeleaf Templates Path
-
-`src/main/resources`디렉토리 내 `templates` 폴더 생성  
-(Spring Boot 가 여기서 HTML 파일을 찾는다.)
-
-#### 3.2. Configure `list.html`
-: 화면에 표시할 메인 UI 를 HTML 파일을 생성해 구현
-
-<br>
-
-### 4. Styling with Bootstrap
-
-#### 4.1. Add Bootstrap CSS for CDN in `<head>` Tag
-: Bootstrap CSS 파일을 웹에서 가져다 쓰는 CDN 방식
-
-#### 4.2. Modify `<body>`Tag to use Bootstrap class
+### 3. View Implementation
+- **Templates** : `src/main/resources/templates/`경로에 HTML 파일 생성
+- **Styling** : Bootstrap(CDN) 을 적용하여 UI 디자인 구성
 
 <br>
 
@@ -282,114 +204,68 @@ public interface GuestbookRepository extends JpaRepository<Guestbook, Long>
 <br>
 
 ## Step 4. System Management
-
-### 1. Create Cloud Server (EC2)
-: 아마존 AWS 에서 클라우드 서버 사용  
 ~ https://aws.amazon.com
 
-#### 1.1 AWS Management Console Log-in
-: 로그인하여 **EC2** 탐색
+### 1. Cloud Infrastructure (AWS EC2)
 
-#### 1.2. EC2 Instance Start
-: EC2 대시보드에서 **인스턴스 시작** 하기
+#### 1.1. Instance
 
-#### 1.3. Set Name (Tag)
-: '이름' 필드에 이름 설정
+> **AMI** : Amazon Linux 2023 AMI  
+> **Type** : t2 / t3.micro
 
-#### 1.4. Select AMI
-> **'Amazon Linux 2023 AMI'**
-
-#### 1.5. Select Instance Type
->**t2.micro** / **t3.micro**
-
-#### 1.6. Create Key Pair (Password)
-: **새 키 페어 생성** 을 클릭하여, 키 이름을 짓고 생성  
-~ `my-server-key.pem` 파일 보관하기 (**보안 철저히**)
-
-#### 1.7. Set Firewall (Secure Group)
-: '보안 그룹 규칙' 에서 다음 세 가지의 규칙 추가
+#### 1.2. Security
+: Key Pair (`.pem`) 생성 및 보안 그룹 설정
 
 > **규칙 1** : 유형 `SSH` , 소스 `내 IP` (나의 컴퓨터에서만 SSH 접속)  
 > **규칙 2** : 유형 `HTTP`, 소스 `위치 무관` (아무나 HTTP로 접속 가능)  
 > **규칙 3** : 유형 `사용자정의 TCP`, 포트 범위 `8080`, 소스 `위치 무관`
 
-#### 1.8. Start Instance
-
-
 <br>
 
-### 2. Server Access (SSH)
-: 만든 AWS 클라우드 서버에 원격 접속
+### 2. Server Environment Setup
 
-#### 2.1. Check Public IP
-: EC2 인스턴스의 정보 중 **'Public IPv4 주소'** 복사
+#### 2.1. Access
+: 만든 클라우드 서버에 원격 접속
 
-#### 2.2. Set Authorization of Key File
 ```bash
-# 키 파일 권한 변경 (나만 읽을 수 있도록)
-chmod 400 my-server-key.pem
+ssh -i [your-key-name.pem] ec2-user@[your.ec2.public.IPv4]
 ```
 
-#### 2.3. Access SSH
+#### 2.2. Installation
+: 서버에 프로젝트 실행 도구 설치
+
 ```bash
-ssh -i my-server-key.pem ec2-user@[MY_PUBLIC_IP]
-```
-
-<br>
-
-### 3. Build Server Environment
-: 서버에 프로젝트를 실행할 도구 설치
-
-#### 3.1. Server Update
-```bash
+# 설치 도구 업데이트
 sudo yum update -y
-```
 
-#### 3.2. Install Java 21
-```bash
+# 자바21 설치
 sudo yum install java-21-amazon-corretto -y
-```
 
-#### 3.3. Install Maven
-```bash
+# Maven 설치
 sudo yum install maven -y
 ```
 
-#### 3.4. Check Installations
-```bash
-java -version
-mvn -version
-```
-
 <br>
 
-### 4. Project Deployment
+### 3. Deployment
 : 프로젝트를 서버로 옮겨서 실행하기
 
-#### 4.1. Modify Application Properties
-: `application.properties` 파일에 추가
-
-```properties
-server.address=0.0.0.0
-```
-
-#### 4.2. Build Project on Local
+#### 3.1. Build on Local
 ```bash
 # IntelliJ 내 로컬 터미널에서 실행
 # 프로젝트를 실행 가능한 .jar 파일로 만들기
 mvn clean package
 ```
--> 프로젝트 폴더에 `target` 이라는 폴더가 생성  
-하위에 `my-server ~ SNAPSHOT.jar` 스냅샷 파일 생성 확인
+-> 프로젝트 폴더 하위에 `target/my-server ... SNAPSHOT.jar`  생성 확인
 
-#### 4.3. Transfer Files to Server
+#### 3.2. Transfer
 ```bash
 # 새로운 로컬 터미널 실행
 # jar 파일을 서버의 홈 디렉토리로 복사
-scp -i my-web-key.pem /path/to/your/project/target/my-...-SNAPSHOT.jar ec2-user@[MY_PUBLIC_IP]:~/
+scp -i [your-key.pem] /path/to/your/project/target/my-...-SNAPSHOT.jar ec2-user@[your.ec2.public.IPv4]:~/
 ```
 
-#### 4.4. Run Application in Server
+#### 3.3. Run
 ```bash
 # .jar 파일이 잘 복사되었는지 확인
 ls
@@ -403,15 +279,13 @@ nohup java -jar my-server-0.0.1-SNAPSHOT.jar &
 
 <br>
 
-### 5. Maintain Operation Stability
+### 4. Stability & Networking
 
-#### 5.1. Assign Elastic IP
-: EC2 서버에 연결할 때마다 퍼블릭 IPv4 주소가 변경됨  
--> AWS 에서 **'Elasic IP'** 를 할당받아 인스턴스에 연결
+#### 4.1. Assign Elastic IP
+- **Elastic IP** : 재시작 시 IP 변경 방지를 위해 고정 IP 할당
 
-#### 5.2. Set Domain
-: 순수 IP 주소가 아닌 도메인 이름을 구하여 연결  
--> 무료 도메인을 구하여 **DNS 설정**을 통해 도메인을 서버 퍼블릭 IPv4로 연결
+#### 4.2. Set Domain
+: 순수 IP 주소가 아닌 도메인을 구하여 **DNS 설정**을 통해 도메인을 서버 퍼블릭 IPv4로 연결
 
 <br>
 
@@ -481,108 +355,81 @@ sudo certbot --nginx -d [MY_DOMAIN]
 ## Step 1. Application Maintenance
 : 사용자 친화적인 완성도 있는 서비스 제공
 
-### 1. Implement Full CRUD
-: 현재 서비스는 Create 와 Read만 가능  
--> **Update** 과 **Delete** 기능 추가
+### 1. Architecture Refactoring
 
-#### 1.1. Add Update/Delete Button on `list.html`
-: 화면 상에 표시될 수정 및 삭제 버튼을 `list.html` 에서 구현
+#### 1.1. CRUD
+: 전체적인 CRUD 구현 및 시간 포맷 / 정렬 처리
 
-#### 1.2. Add Update/Delete Logic on `GuestbookController.java`
-: 컨트롤러 상에서 실제 로직 구현
+- 수정 / 삭제의 버튼 및 폼(`View`), 로직(`Controller`) 구성
+- **반복 상태 변수** : 게시글의 고유 ID로 Repository 정렬 처리
+- 로컬 / 서버 **시간대** 적용 (Local -> Zoned)
 
-#### 1.3. Create Update Form HTML file (`edit.html`) 
-: 별도의 수정 폼(HTML) 을 생성
+#### 1.2. Layered Architecture (SoC)
+- 기존 : Controller - Repository 직접 호출 구조
 
-#### 1.4. Update Serial Number
-: 생성 / 삭제 후에도 순차 번호가 갱신되도록 기능 고도화  
--> 반복 상태 변수 추가
+> Service 계층 추가 구현 (`GuestbookService.java`)
 
-<br>
+- 이후 : Controller - Service - Repository 계층형 구조
 
-### 2. Enhancement of Functions
+#### 1.3. Entity Remodeling
+- 기존 : `Guestbook` (방명록 형식)
 
-#### 2.1. Recently Updated Time
-: 수정 시 작성 시간 대신 최근 수정 시간으로 갱신되도록 변경  
--> `@PreUpdate` 어노테이션
+> `Guestbook` -> `Post`
 
-#### 2.2. Time Format & Adjust Table Layout
+- 이후 : `Post` (제목, 작성자, 내용, 파일이 존재하는 게시글 형식)
 
-#### 2.3. Post Sorting
-: ID를 기준으로 Repository 에 정렬 기능 추가  
+#### 1.4. Package Decoupling
+: 역할별 패키지 분리
 
-> Spring Data JPA
+`./my-server/`
+- `controller/PostController.java`
+- `service/`
+	- `PostService.java`
+	- `PostServiceImpl.java`
+- `repository/PostRepository.java`
+- `domain/Post.java`
 
-#### 2.4. Set Time Zone
-: AWS EC2 사용 시 기본적으로 UTC 시간대 적용  
--> LocalDateTime > ZonedDateTime 전환
+#### 1.5. Business Logic
 
-<br>
-
-### 3. Refactoring the Domain Model
-: 방명록을 **'포스트(Post)'** 형태의 애플리케이션으로 발전시키기  
-(`Guestbook`-> `Post`)
-
-#### 3.1. Separation of Concerns (SoC)
-- **주요 변경점**
-	- **Before**
-		- `Controller` 가 `Repository` 를 직접 호출하여 데이터를 조작
-		- `Controller` 가 HTTP 처리와 데이터 로직까지 모두 책임
-	- **After**
-		- `Service` 계층 도입
-		- `Controller` -> `Service` -> `Repository` 순 호출
-		- `Controller` : 오직 HTTP 요청을 받고 응답을 보내는 역할에 집중
-		- `Service` : 실제 데이터 처리하는 핵심 비즈니스 로직
-
-#### 3.2. Decoupling Packages
-- **주요 변경점**
-	- **Before**
-		- 모든 클래스가 하나의 패키지 내에 존재
-	- **After**
-		- 역할별 **패키지 분리**
-		- `controller` : 웹 요청/응답 담당
-		- `service` : 비즈니스 로직 담당
-		- `repository` : DB 접근 담당
-		- `domain` : 데이터 모델 (엔티티) 담당
-		- `exception` : 커스텀 예외 클래스 담당
-
-#### 3.3. Solidifying Business Logic
-- **주요 변경점**
-	- **Before**
-		- CRUD 에 대한 별도의 로직이 없거나 Controller 에 산개
-		- 데이터 변경 중 오류 발생 시 일부만 변경될 위험
-	- **After**
-		- `PostService` 인터페이스와 `PostServiceImpl` 구현체 분리
-		- `PostService` 내부에 `save`, `updatePost`, `delete` 와 같은 메소드로 로직 분리
-		- `@Transactional` 어노테이션을 도입하여 태스크의 **원자성 확보**
-
-
-**3.4. Creating Custom Exception Classes**
-- 주요 변경점
-	- Before
-		- 존재하지 않는 데이터 요청 시 Spring이 제공하는 오류가 발생
-		- 오류의 원인 찾기 힘듦
-	- After
-		- `PostNotFoundException` 커스텀 **예외 클래스** 생성
-		- `PostService`에서 데이터를 찾지 못하면 이 예외를 명확히 Throw
+> `Service.java / ServiceImpl.java` 인터페이스 및 구현체 분리
+> `@Transactional` 적용 (원자성 확보)
 
 <br>
 
-### 4. Automated Testing
-: 코드 품질을 보증하기 위한 코드 테스트를 자동화
+### 2. Robustness & Validation
 
-#### 4.1. Test Environment Setup
-: `pom.xml` 내 Spring Boot 테스트를 위한 의존성 포함 여부 확인
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-test</artifactId>
-    <scope>test</scope>
-</dependency>
-```
-- JUnit5, Mockito, AssertJ 등이 포함
+#### 2.1. Validation
 
-#### 4.2. Service Layer Unit Testing
+- **Dependency** (`pom.xml`)
+> `spring-boot-starter-validation`
+
+: `@Valid`, `@NotBlank` 를 사용한 도메인 검증
+
+#### 2.2. Exception Handling
+
+> 패키지 `exception` / 클래스 `GlobalExceptionHandler.java` 
+
+: 전역 예외 처리로 유지 보수성 및 견고함 향상
+
+#### 2.3. Custom Error
+
+> `exception` / 클래스 `PostNotFoundException.java`  
+> HTML 폼 : `404.html`, `500.html`
+
+: 에러 페이지를 커스텀화
+
+<br>
+
+### 3. Quality Assurance
+
+#### 3.1. Unit Testing
+: 코드 품질을 보증하기 위한 코드 테스트 자동화
+
+- **Dependency** (`pom.xml`)
+
+> `spring-boot-starter-test` (JUnit5, Mockito 등 포함)
+
+#### 3.2. Mocking
 : **Mockito** 를 사용하여 `Repository` 를 Mock 으로 만들기  
 -> 실제로 DB에 접근하지 않고 로직을 빠르게 검증 가능
 
@@ -594,146 +441,40 @@ sudo certbot --nginx -d [MY_DOMAIN]
 
 <br>
 
-### 5. Input Validation / Exception Handling
-: 입력값 검증 / 예외 처리 및 에러 페이지 표시
+### 4. Funtional Enhancement
 
-#### 5.1. Add Dependencies
-: 입력값 검증을 위한 라이브러리를 추가
+#### 4.1. Pagination
+: 게시글 목록을 페이지 단위로 나누어 한 번에 로드되는 데이터 양을 조절
 
-```xml
-<!-- pom.xml -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-validation</artifactId>
-</dependency>
-```
+- **Implementation**:
+    - **Spring Data JPA**: `Pageable` 인터페이스와 `Page<T>` 객체 활용
+    - **Controller**: `@PageableDefault` 어노테이션을 사용하여 기본 페이지 크기(예: 20개) 및 정렬 조건(ID 내림차순) 설정
+    - **Service**: `Repository`로부터 반환된 `Page` 객체를 그대로 View로 전달
+- **View (Thymeleaf)**:
+	   - `posts.content`를 통해 실제 게시글 리스트 출력.
+    - `posts.totalPages`, `posts.number` 등의 메타 데이터를 활용하여 페이지 네비게이션(이전, 다음, 번호) UI 구현.
+	- 페이지 이동 링크에 `page` 파라미터 전달.
 
-#### 5.2. Apply Validation Rules in Domain
-: 현재 프로젝트는 Entity를 그대로 사용 중  
--> `Post` Entity에 검증 어노테이션 추가
+#### 4.2. Search Funcionality
+: 게시글의 제목이나 내용을 기준으로 데이터 필터링
 
-```java
-// 기존 @Column 속성에 validation 어노테이션 추가
-    @NotBlank(message = "제목은 비워둘 수 없습니다.")
-    @Size(max = 100, message = "제목은 100자를 넘을 수 없습니다.")
-    @Column(nullable = false, length = 100)
-    private String title;
-```
-
-#### 5.3. Apply Validation Logic in Controller
-
-> 1) 데이터를 주고받기 전에 자동으로 검증 수행
-> - 글 작성 처리  
-> `@Valid Post post`: Post 객체를 검증하겠다는 의미  
-> `BindingResult bindingResult`: 검증 결과(에러 정보)를 담는 객체
-
-> 2) HTML View 에서 에러 메세지 출력  
-> `PostController.java`   
-> 글쓰기 폼(`write-form`)에 처음 진입할 때 `th:object`를 사용하기 위해    
-> 비어있는 `Post` 객체를 Model에 담아줘야 한다.
-
-> 3) HTML View 수정  
-> `write-form.html` 의 `<form>`태그 구조를 Thymeleaf 에 맞게 변경   
-> `edit.html`또한 동일
-
-#### 5.4. Create Global Exception Handler
-: 전역 예외 처리기 생성  
- - `my_server/exception/` 패키지에 `GlobalExceptionHandler.java` 구성
- 
-```java
-@ControllerAdvice
-public class GlobalExceptionHandler {
-
-    // 1. PostNotFoundException (게시글을 찾을 수 없음) 처리
-    @ExceptionHandler(PostNotFoundException.class)
-    public String handlePostNotFoundException(PostNotFoundException ex, Model model) {
-        model.addAttribute("errorMessage", ex.getMessage());
-        return "error/404"; // templates/error/404.html 로 이동
-    }
-
-    // 2. 그 외 모든 Exception (서버 에러 등) 처리
-    @ExceptionHandler(Exception.class)
-    public String handleException(Exception ex, Model model) {
-        model.addAttribute("errorMessage", "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.");
-        return "error/500"; // templates/error/500.html 로 이동
-    }
-}
-```
-
-#### 5.5. Create Custom Error Page
-
-> 1) 디렉토리 생성 : `src/main/resources/templates/error/404.html
-> 2) `404.html` 파일 생성
-> 3) `500.html` 파일 생성
+- **Implementation**:
+    - **Repository**: Spring Data JPA의 Query Methods 기능 사용.
+        - `findByTitleContainingOrContentContaining(String title, String content, Pageable pageable)`
+        - 메소드 명명 규칙을 통해 `LIKE` 쿼리 자동 생성 (`Containing`).
+    - **Service**: 검색어(`keyword`) 존재 여부에 따른 분기 처리.
+        - 검색어 없음: `findAll(pageable)` 호출.
+        - 검색어 있음: 검색용 쿼리 메소드 호출.
+    - **Controller**: `@RequestParam(value = "keyword", required = false)`를 통해 검색어 수신 및 `Model`에 다시 담아 View로 전달.
+- **State Persistence (상태 유지)**
+    : View의 페이지네이션 링크에 검색 파라미터를 추가하여, 검색 상태를 유지한 채로 페이지 이동 가능
 
 <br>
 
-### 6. Post Search Functionality
-: 특정 포스팅을 제목이나 내용을 기준으로 검색하는 기능 추가
+### 5. File Upload
+: 게시글에 이미지나 문서를 첨부하는 기능 구현
 
-#### 6.1. Repository Layer : Define Searching Query Method
-: Spring Data JPA 는 메소드명 만으로 자동으로 쿼리를 만들어준다.  
-`PostRepository.java` 에 검색용 메소드 추가
-
-```java
-public interface PostRepository extends JpaRepository<Post, Long> {
-    // 검색 기능: 제목(title) 또는 내용(content)에 키워드가 포함된 게시글 조회
-    // Containing: LIKE '%keyword%' 와 같은 역할
-    // Or: 두 조건 중 하나라도 만족하면 조회
-    Page<Post> findByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
-}
-```
-
-#### 6.2. Service Layer : Process Searching Logic
-: 검색어(Keyword) 의 유무에 따라 다른 로직 수행
-
-```java
-public interface PostService // 기존 list 메소드 수정 ... 나머지 메소드 동일
-{ Page<Post> list(String keyword, Pageable pageable); }
-
-@Override
-    public Page<Post> list(String keyword, Pageable pageable)
-    {
-        // 1. 검색어가 없거나 공백일 경우 -> 전체 조회
-        if (keyword == null || keyword.trim().isEmpty())
-        { return postRepository.findAll(pageable); }
-        
-        // 2. 검색어가 있을 경우 -> 제목 또는 내용에서 검색
-        // (파라미터로 keyword를 두 번 넘겨서 제목에서도 찾고 내용에서도 찾도록 함)
-        return postRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
-    }
-```
-
-#### 6.3. Controller Layer : Receive `keyword` Parameter
-: 클라이언트에서 보낸 검색어(`keyword`) 를 받아서 Service 로 넘겨줘야 함.
-
-```java
-@GetMapping("/main/list")
-    public String list(Model model,
-                       @RequestParam(value = "keyword", required = false) String keyword, // 검색어 파라미터 추가
-                       @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-
-        // 검색어를 포함하여 Service 호출
-        Page<Post> postsPage = postServiceImpl.list(keyword, pageable);
-
-        model.addAttribute("posts", postsPage);
-        model.addAttribute("keyword", keyword); // 뷰에서 검색어 유지를 위해 전달
-
-        return "list";
-    }
-```
-
-#### 6.4. View Layer : Paging & Linking
-: 사용자가 사용할 수 있는 검색어 입력창 만들고, 페이지를 넘겨도 검색어가 유지되도록 처리  
-`list.html` 수정
-
-<br>
-
-### 7. File Upload
-: 게시판에 이미지나 문서를 첨부하는 기능 구현
-
-#### 7.1. Configuration : File Upload Limits & Path
-`application.properties` 에 업로드 최대 용량 및 저장 경로 설정
+#### 5.1. Configuration
 ```properties
 # File Upload Settings
 spring.servlet.multipart.max-file-size=10MB
@@ -743,52 +484,33 @@ spring.servlet.multipart.max-request-size=10MB
 file.upload-dir=./uploads
 ```
 
-#### 7.2. Domain : Entity Field Extension
-`Post` 엔터티에 파일 경로 (`filePath`) 컬럼 추가
-```java
-@Column
-private String filePath;
+#### 5.2. Implementation
 
-public String getFilePath() { return filePath; }
-public void setFilePath(String filePath) { this.filePath - filePath; }
-```
+ 1) **Domain : Entity Field Extention**
+ >  : `Post` 엔터티에 파일 경로 컬럼 추가
 
-#### 7.3. Service : File Storage Logic
-Service Layer에 파일 저장 로직 구현
-- **인터페이스 수정** : `save`, `updatePost` 메소드 파라미터에 `MultipartFile file`, `throws IOException` 추가
-- **구현체 로직** :
-	- 파일명 중복 방지를 위한 `UUID` 활용
-	- `MultipartFile.transferTo()` 를 사용하여 실제 파일 저장
-	- DB에는 저장된 파일명 (`saveFilename`) 만 문자열로 저장
+ 2) **Service : File Storage Logic**
+ >   -> Service 인터페이스 수정 / 구현체 로직 구현
+    -> `UUID`활용
 
-#### 7.4. Controller : Request Handling
-Controller 에서 `MultipartFile`을 받아 Service로 전달
-- **Key Point** : `@RequestParam`
-- **Exception** : `IOException` 예외 처리
+3) **Controller : Request Handling**
+>    -> Controller 에서 `MultipartFile` 을 받아 Service 로 전달
+    - `@RequestParam` 으로 경로 받기
+    - `IOException` 예외처리
 
-#### 7.5. View : Form Configuration
-```html
-<!-- write-form.html -->
-<form th:action="@{/post/write}" method="post" enctype="multipart/form-data">
-    <!-- ... 기존 필드 ... -->
-    <div class="mb-3">
-        <label for="file" class="form-label">첨부 파일</label>
-        <input type="file" class="form-control" id="file" name="file">
-    </div>
-    <button type="submit" class="btn btn-primary">저장</button>
-</form>
-```
+4) **View : Form Configuration**
+>   : `write-form.html`/ `detail.html` / `edit.html` 이미지 및 파일 다운로드 뷰 추가
 
-#### 7.6. Web Configuration : Resource Mapping
-: 웹 브라우저가 서버의 로컬 디렉터리 `./uploads` 에 접근 수 있도록 <u>매핑</u>
+#### 5.3. Resource Mapping
+: 웹 브라우저가 서버의 로컬 디렉터리 `./uploads` 에 접근할 수 있도록 매핑
 
 > 새로운 패키지 `config` / `WebConfig.java`
 
 - `@Configuration`어노테이션 활용 및 `WebMvcConfigurer`인터페이스 구현체로 작성
 - **Key Point** : <u>OS에 독립적인 경로 처리 (`toURI()`)</u>
 
-#### 7.7. Deployment : AWS Nginx Configuration
-AWS(EC2) 배포 시, Nginx 가 대용량 파일 전송을 차단하지 않도록 설정 변경
+#### 5.4. Deployment
+: AWS(EC2) 배포 시, Nginx 가 대용량 파일 전송을 차단하지 않도록 설정 변경
 - File : `/etc/nginx/conf.d/my-server.conf`
 - Settings:
 	```nginx
@@ -805,6 +527,33 @@ AWS(EC2) 배포 시, Nginx 가 대용량 파일 전송을 차단하지 않도록
 	```
 - Apply : `sudo systemctl restart nginx`
 
+<br>
+
+### 6. Configuration Externalizaiton
+: `application.properties`의 설정을 개발 / 운영 환경으로 분리
+
+#### 6.1. Profile Separation
+`application.properties` 를 기준으로 파일을 분리 생성
+
+> 1) `application.properties` (공통)
+>   : 환경 무관 항상 사용하는 설정
+> 2) application-local.properties (개발용)
+>   : 로컬 PC 에서 개발할 때 필요한 설정
+> 3) application-prod.properties (운영용)
+>   : AWS EC2 서버에서 실행할 때 필요한 설정
+
+#### 6.2. Deployment
+
+**A. Local (IntelliJ)**
+: 실행 시 `application.properties`에 명시된 대로 `spring.profiles.active=local`이 적용
+
+**B. AWS (배포)**
+: 실행 시 <u>프로필을 명시</u>
+```bash
+java -jar my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+```
+
+<br>
 
 ---
 
@@ -813,7 +562,7 @@ AWS(EC2) 배포 시, Nginx 가 대용량 파일 전송을 차단하지 않도록
 ### 0. Document Info
 -  **Project** : my-server
 - **Version** : 1.0.0-SNAPSHOT
-- **Status** : Phase 2 - Step 1.7 Completed (File Upload Done)
+- **Status** : Phase 2 - Application Maintenance Completed
 
 <br>
 
@@ -847,3 +596,9 @@ AWS(EC2) 배포 시, Nginx 가 대용량 파일 전송을 차단하지 않도록
 
 - **OS-Independent Resource Handling** : OS 간 다양한 호환성 문제의 원천적 해결
 - **Shift-Left Security** : 배포 초기 단계에 HTTPS 및 리버스 프록시를 적용, 개발 / 운영 환경 간 보안 격차 조기 해소
+
+#### 2.3. Environment Isolation & Configuration Management
+: 환경 격리 및 설정 관리
+
+- **Profile-Based Configuration** : 개발 / 운영 프로필 설정 분리
+- **Operational Consistency** : 설정 외부화를 통해 개발 / 운영 간 구성 차이로 인한 장애 위험 차단
