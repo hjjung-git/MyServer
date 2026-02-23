@@ -34,6 +34,9 @@ public class Post
     @LastModifiedDate
     private ZonedDateTime lastModifiedAt;
 
+    @Column
+    private String filePath;
+
     // --- 생성자 ---
     public Post() {}
 
@@ -53,6 +56,8 @@ public class Post
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
     public ZonedDateTime getLastModifiedAt() { return lastModifiedAt; }
+    public String getFilePath() { return filePath; }
+    public void setFilePath(String filePath) { this.filePath = filePath; }
 
     // 이 엔티티가 DB에 처음 저장되기 직전(pre-persist) 실행
     @PrePersist

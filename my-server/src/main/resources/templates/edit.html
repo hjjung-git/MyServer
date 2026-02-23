@@ -12,7 +12,7 @@
             <h1>포스트 수정</h1>
             <hr>
 
-            <form th:action="@{/post/update/{id}(id=${post.id})}" method="post" th:object="${post}">
+            <form th:action="@{/post/update/{id}(id=${post.id})}" method="post" th:object="${post}" enctype="multipart/form-data">
                 <input type="hidden" th:field="*{id}" />
 
                 <!-- 제목 -->
@@ -34,10 +34,31 @@
                     <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="text-danger mt-1"></div>
                 </div>
 
+                <div class="mb-3">
+                    <label for="file" class="form-label">첨부 파일</label>
+
+                    <!-- 기존에 파일이 있다면 미리보기 or 파일명 표시 -->
+                    <div th:if="${post.filePath != null and !post.filePath.isEmpty()}" class="mb-2">
+                        <span class="text-muted">현재 파일: </span>
+                        <!-- 이미지인 경우 미리보기 -->
+                        <img th:if="${post.filePath.endsWith('.jpg') or post.filePath.endsWith('.png') or post.filePath.endsWith('.jpeg')}"
+                             th:src="@{/uploads/{file}(file=${post.filePath})}"
+                             style="max-width: 200px; max-height: 100px; border: 1px solid #ddd;"
+                             alt="현재 이미지">
+                        <!-- 이미지가 아닌 경우 파일명 텍스트 -->
+                        <span th:unless="${post.filePath.endsWith('.jpg') or post.filePath.endsWith('.png') or post.filePath.endsWith('.jpeg')}"
+                              th:text="${post.filePath}"></span>
+                    </div>
+
+                    <!-- 새 파일 선택 입력창 -->
+                    <input type="file" class="form-control" id="file" name="file">
+                    <div class="form-text">새로운 파일을 선택하면 기존 파일이 교체됩니다.</div>
+                </div>
+
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-success">수정 완료</button>
                     <!-- ⭐ 취소 시 목록 페이지로 돌아가도록 링크 수정 -->
-                    <a href="/main/list" class="btn btn-secondary">취소</a>
+                    <a th:href="@{/post/detail/{id}(id=${post.id})}" class="btn btn-secondary">취소</a>
                 </div>
             </form>
         </div>

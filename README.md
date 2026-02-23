@@ -727,6 +727,85 @@ public interface PostService // 기존 list 메소드 수정 ... 나머지 메�
 : 사용자가 사용할 수 있는 검색어 입력창 만들고, 페이지를 넘겨도 검색어가 유지되도록 처리  
 `list.html` 수정
 
+<br>
+
+### 7. File Upload
+: 게시판에 이미지나 문서를 첨부하는 기능 구현
+
+#### 7.1. Configuration : File Upload Limits & Path
+`application.properties` 에 업로드 최대 용량 및 저장 경로 설정
+```properties
+# File Upload Settings
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+
+# Path Settings
+file.upload-dir=./uploads
+```
+
+#### 7.2. Domain : Entity Field Extension
+`Post` 엔터티에 파일 경로 (`filePath`) 컬럼 추가
+```java
+@Column
+private String filePath;
+
+public String getFilePath() { return filePath; }
+public void setFilePath(String filePath) { this.filePath - filePath; }
+```
+
+#### 7.3. Service : File Storage Logic
+Service Layer에 파일 저장 로직 구현
+- **인터페이스 수정** : `save`, `updatePost` 메소드 파라미터에 `MultipartFile file`, `throws IOException` 추가
+- **구현체 로직** :
+	- 파일명 중복 방지를 위한 `UUID` 활용
+	- `MultipartFile.transferTo()` 를 사용하여 실제 파일 저장
+	- DB에는 저장된 파일명 (`saveFilename`) 만 문자열로 저장
+
+#### 7.4. Controller : Request Handling
+Controller 에서 `MultipartFile`을 받아 Service로 전달
+- **Key Point** : `@RequestParam`
+- **Exception** : `IOException` 예외 처리
+
+#### 7.5. View : Form Configuration
+```html
+<!-- write-form.html -->
+<form th:action="@{/post/write}" method="post" enctype="multipart/form-data">
+    <!-- ... 기존 필드 ... -->
+    <div class="mb-3">
+        <label for="file" class="form-label">첨부 파일</label>
+        <input type="file" class="form-control" id="file" name="file">
+    </div>
+    <button type="submit" class="btn btn-primary">저장</button>
+</form>
+```
+
+#### 7.6. Web Configuration : Resource Mapping
+: 웹 브라우저가 서버의 로컬 디렉터리 `./uploads` 에 접근 수 있도록 <u>매핑</u>
+
+> 새로운 패키지 `config` / `WebConfig.java`
+
+- `@Configuration`어노테이션 활용 및 `WebMvcConfigurer`인터페이스 구현체로 작성
+- **Key Point** : <u>OS에 독립적인 경로 처리 (`toURI()`)</u>
+
+#### 7.7. Deployment : AWS Nginx Configuration
+AWS(EC2) 배포 시, Nginx 가 대용량 파일 전송을 차단하지 않도록 설정 변경
+- File : `/etc/nginx/conf.d/my-server.conf`
+- Settings:
+	```nginx
+	server
+	{
+		# ... 기존 설정 ...
+		
+		client_max_body_size 10M;
+		
+		location / {
+			# ...
+		}
+	}
+	```
+- Apply : `sudo systemctl restart nginx`
+
+
 ---
 
 # Technical Design Document
@@ -734,7 +813,7 @@ public interface PostService // 기존 list 메소드 수정 ... 나머지 메�
 ### 0. Document Info
 -  **Project** : my-server
 - **Version** : 1.0.0-SNAPSHOT
-- **Status** : Phase 2 - Step 1.6 Completed (Search Functionality Done)
+- **Status** : Phase 2 - Step 1.7 Completed (File Upload Done)
 
 <br>
 
@@ -742,77 +821,29 @@ public interface PostService // 기존 list 메소드 수정 ... 나머지 메�
 : 설계 결정 근거 및 상충 관계
 
 #### 1.1. Database Strategy : H2 File-based DB
-- **Rationale**
-	- 학습 목적에 맞춰, 별도의 DB 서버 설치 및 설정에 드는 비용 최소화
-	- <u>JPA 및 도메인 모델링 학습에 집중</u>
-	- 파일 기반 (`jdbc:h2:file`) 으로 설정하여 서버 재시동 간 데이터 유지 확보
-- **Trade-offs**
-	- **장점**
-		- Zero-configuration
-		- 빠른 개발 속도
-		- 가벼운 리소스
-	- **단점**
-		- 대용량 트래픽 처리 및 동시성 제어에 취약
-		- 운영 환경(Production) 으로 확장 시 MySQL/PostgreSQL 등으로 이식 비용 발생
+- **Rationale** : 학습 목적에 맞춰 DB 설치/설정 비용을 최소화하고 도메인 모델링에 집중
+- **Trade-offs** : Zero-configuration의 장점이 있으나, 운영 환경 확장 시 타 DBMS로의 이식 비용 발생
 
 #### 1.2. Server-Side Rendering : Thymeleaf
-- **Rationale**
-	- Front/Back 역할 분리 보다, <u>Back-end 서버의 요청-응답 흐름 (MVC) 의 명확한 파악</u>을 우선시
-	- 서버 사이드 렌더링을 통해 SEO(검색 엔진 최적화) 및 초기 로딩 속도 확보 용이
-- **Trade-offs**
-	- **장점**
-		- 백엔드 중심의 개발 용이성
-		- 별도의 API 서버/클라이언트 이원화 불필요
-	- **단점**
-		- UX 측면에서 페이지 전체가 새로고침되어 동적인 UI 구현에 제약
-		- 향후 SPA(React/Vue) 도입 시 구조 변경 필요
+- **Rationale** : 백엔드 서버의 MVC 흐름 명확한 파악과 SEO 확보를 우선시.
+- **Trade-offs** : 개발 용이성이 높으나, 동적인 UX 구현에 제약.
 
 #### 1.3. Layered Architecture
-- **Rationale**
-	- 단일 책임 원칙(SRP) 적용하여 Controller-Service-Repository 분리
-	- Service Layer 의 인터페이스 구현을 통해 개방-폐쇠 원칙(OCP) 준수 및 테스트 용이성 확보
-- **Trade-offs**
-	- **장점**
-		- 코드의 가독성, 유지보수성 증가
-		- 향후 기능 변경 시 영향 범위 최소화 (모듈화)
-	- 단점
-		- 적은 규모 대비 초기 작성 코드량(Boilerplate Code) 증가
+- **Rationale** : SRP(단일 책임 원칙)와 OCP(개방-폐쇄 원칙) 적용으로 유지보수성 및 테스트 용이성 확보.
+- **Trade-offs** : 모듈화의 장점이 있으나, 소규모 프로젝트 초기에는 Boilerplate Code 증가.
 <br>
 
 ## 2. Architectural Strategy & Characteristics
 : 아키텍처 전략 및 특성
 
-#### 2.1. Evolutionary Design
+#### 2.1. Evolutionary Architecture & Debt Management
 : 점진적 설계 지향
 
-- **MVP First** : Phase 1 에서는 구조적 단순함을 유지하여 핵심 기능 작동에 집중하여 개발 초기 복잡도를 낮추고 빠른 배포 달성
-- **Just-in-Time Refactoring** : Phase 2 로 진입하며 계층 분리 등 필요한 시점에 리팩토링 수행하여 오버엔지니어링 방지 및 확장성 확보
+- **Intentional Debt & Repayment** : MVP(Phase 1) 에서는 '작동하는 소프트웨어'를 위해 구조적 단순함을 선택, 확장 시점 (Phase 2)에 기술 부채를 상환(Refactoring) 하는 전략적 접근
+- **Test Safety Net** : Refactoring 이후 테스트 코드를 도입하여 변경으로 인한 회귀(Regression)를 방지, 지속적인 개선 가능성 확장
 
-#### 2.2. Technical Debt Management
-: 기술 부채 관리
+#### 2.2. Cross-Platform & Deployment Readiness
+: 크로스 플랫폼 및 배포 준비성
 
-- **Intentional Debt & Repayment** : Phase 1 에서의 빠른 구현을 위해 감수한 계층 구조의 단순화(부채)를 Phase 2 에서 구조적 개선(상환)으로 해소하여 유지보수 비용을 선제적으로 절감
-- **Separation of Concerns** : 객체지향 설계 원칙을 적용하여 관심사를 명확한 분리함. 향후 기술 부채가 누적되는 것을 방지하는 방어적 설계
-
-#### 2.3. Shift-Left Security
-: 보안의 조기 적용
-
-- **Proactive Hardening** : 초기 배포 이전에 HTTPS(SSL) 적용 및 Nginx 리버스 프록시 구성을 완료하여 보안 격차 및 이슈를 사전에 차단
-
-#### 2.4. Test-Driven Quality Assurance
-: 테스트 주도 품질 보증
-
-- **Automated Unit Testing** : JUnit 5와 Mockito 를 도입하여 Service 계층 단위 테스트 구현
-- **Living Documentation** : 테스트 코드를 단순한 검증 도구가 아닌, 요구사항의 명세서로 관리
-
-#### 2.5. Robustness & Usability
-: 견고성 및 사용성 확보
-
-- **Centralized Exception Handling**: `@ControllerAdvice`를 도입하여 흩어져 있던 예외 처리 로직을 전역(Global)으로 통합 관리.
-- **Declarative Validation**: Bean Validation(`@Valid`)을 통해 검증 로직을 비즈니스 로직에서 분리하여 선언적으로 처리.
-
-#### 2.6. Searchability & State Management
-: 검색 기능 및 상태 관리
-
-- **Dynamic Querying**: Spring Data JPA의 Method Naming Convention을 활용하여 별도의 쿼리 작성 없이 동적 검색 기능 구현.
-- **State Persistence**: 페이징 처리 시 검색 키워드(`keyword`)를 URL 파라미터로 전달하여, 페이지 이동 간에도 검색 컨텍스트가 끊기지 않도록 설계.
+- **OS-Independent Resource Handling** : OS 간 다양한 호환성 문제의 원천적 해결
+- **Shift-Left Security** : 배포 초기 단계에 HTTPS 및 리버스 프록시를 적용, 개발 / 운영 환경 간 보안 격차 조기 해소

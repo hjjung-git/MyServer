@@ -11,6 +11,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Controller
 public class PostController
@@ -55,12 +58,14 @@ public class PostController
 
     // 쓰기 기능
     @PostMapping("/post/write")
-    public String writePost(@Valid Post post, BindingResult bindingResult)
+    public String writePost(@Valid Post post,
+                            BindingResult bindingResult,
+                            @RequestParam("file") MultipartFile file) throws IOException
     {
         if (bindingResult.hasErrors())
         { return "write-form"; }
 
-        postServiceImpl.save(post);
+        postServiceImpl.save(post, file);
         return "redirect:/main/list";
     }
 
@@ -88,12 +93,15 @@ public class PostController
 
     // 수정 처리 기능
     @PostMapping("/post/update/{id}")
-    public String update(@PathVariable Long id, @Valid Post post, BindingResult bindingResult)
+    public String update(@PathVariable Long id,
+                         @Valid Post post,
+                         BindingResult bindingResult,
+                         @RequestParam("file") MultipartFile file) throws IOException
     {
         if (bindingResult.hasErrors())
         { return "edit"; }
 
-        postServiceImpl.updatePost(id, post);
+        postServiceImpl.updatePost(id, post, file);
         return "redirect:/post/detail/" + id;
     }
 

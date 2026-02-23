@@ -12,7 +12,7 @@
             <h1>새 포스트 작성</h1>
             <hr>
             <!-- ⭐ 이 form의 action은 기존과 동일하게 /post/write 로 보냄 -->
-            <form th:action="@{/post/write}" th:object="${post}" method="post">
+            <form th:action="@{/post/write}" th:object="${post}" method="post" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label for="title" class="form-label">제목</label>
                     <input type="text" th:field="*{title}" id="title" class="form-control" placeholder="제목을 입력하세요">
@@ -28,6 +28,12 @@
                     <textarea th:field="*{content}" id="content" class="form-control" rows="15" placeholder="내용을 입력하세요"></textarea>
                     <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="text-danger mt-1"></div>
                 </div>
+
+                <div class="mb-3">
+                    <label for="file" class="form-label">첨부 파일</label>
+                    <input type="file" class="form-control" id="file" name="file">
+                </div>
+
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-success">작성 완료</button>
                     <a href="/main/list" class="btn btn-secondary">취소</a>
