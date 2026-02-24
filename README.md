@@ -557,6 +557,91 @@ java -jar my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 
 <br>
 
+
+<br>
+
+## Step 2. Data Maintenance
+
+### 1. Database Migration
+: 데이터베이스 이식 (H2 DB -> <u>MySQL</u>)
+
+| 구분  | H2 (개발/학습용)           | MySQL (실무/운영용) ✅   |
+| --- | --------------------- | ------------------ |
+| 성격  | 가벼운 내장형 (Embedded) DB | 독립적 프로세스 기반 RDBMS  |
+| 강점  | 설정 제로, 빠른 프로토타이핑      | 높은 안정성, 대규모 트래픽 처리 |
+| 약점  | 데이터 손실 위험, 동시 접속 취약   | 별도 설치 및 운영 설정 필요   |
+| 용도  | 로컬 개발, 테스트, 입문용       | 실제 서비스 운영, 협업 프로젝트 |
+
+| 구분     | AWS RDS ✅                   | EC2 내부 직접 설치                  |
+| ------ | --------------------------- | ----------------------------- |
+| 핵심 성격  | **완전 관리형** 서비스 (DBaaS)      | **셀프 관리형** 가상 서버              |
+| 관리 편의성 | <u>AWS가 백업, 패치, 복구 자동화</u>  | OS부터 DB 설치, 설정, 운영 전담         |
+| 자유도    | 설정 제한적 (특정 버전/옵션만)          | **최대 자유도** (모든 설정 커스텀 가능)     |
+| 고가용성   | <u>클릭 몇 번으로 다중 AZ 구성</u> 가능 | 직접 복제 및 클러스터 구축               |
+| 비용     | 관리 비용 포함으로 다소 높음            | <u>인스턴스 비용</u>만 발생하여 상대적으로 저렴 |
+| 권장 대상  | **개발 효율과 안정성** 중시           | **세밀한 튜닝**이나 **비용 절감**이 우선    |
+
+#### 1.1. Infrastructure Setup (AWS RDS)
+: AWS RDS 를 사용하여 MySQL DB 인스턴스 생성
+
+- 데이터베이스 생성하기
+> - 생성 방식 : 전체 구성
+> - 구성 : MySQL
+> - 템플릿 : Free Tier
+> - DB 인스턴스 유형 : `db.t3.micro`
+> - 스토리지 유형 : `범용 SSD(gp3)`
+> - 퍼블릭 엑세스 : 예(Yes)
+> - VPC 보안 그룹 새로 생성 (가용 영역 : 기본)
+> - 추가 구성 - DB 이름
+
+#### 1.2. Security Configuration (Network)
+: DB 접속 보안 설정  
+-> **로컬 PC(개발용) / EC2 서버(운영용)** 에서만 접속 가능하도록
+
+> 1. DB의 보안 그룹으로 이동  
+> 2. 인바운드 규칙 추가  
+>> 규칙 1. 로컬 PC 접속 허용  
+>>> - 유형 : MYSQL/Aurora  
+>>> - 포트 : `3306`(자동 입력)  
+>>> - 소스 : **내 IP**  
+>>
+>> 규칙 2. EC2 서버 접속 허용  
+>>> - 유형 : MYSQL/Aurora  
+>>> - 포트 : `3306`  
+>>> - 소스 : **사용자 지정** (기존 EC2의 보안 그룹 선택)  
+> 3. 저장
+
+#### 1.3. Project Configuration (Spring Boot)
+: 에플리케이션이 MySQL 에 연결되도록 설정
+
+- **Dependency** (`pom.xml`)
+> `<groupId>com.mysql</groupId>`    
+> `<artifactId>mysql-connector-j</artifactId>`  
+> `<scope>runtime</scope>`  
+
+- **Configuration** (`application-prod.properties`)
+> `spring.datasource.url=`  
+> `spring.datasource.username=`  
+> `spring.datasource.password=`  
+> `spring.datasource.driver-class-name=`  
+> `spring.jpa.database-platform=`  
+> `spring.h2.console.enabled=`  
+
+- Test In Local
+
+#### 1.4. Deployment & Verification
+: 변경된 애플리케이션을 서버에 배포하고 DB 연동 확인
+- **Build** (mvn)
+- **Transfer** (scp)
+- **Run** (ssh / java)
+> **데이터 독립성 확보**  
+> **환경 분리 성공**
+
+<br>
+
+### 2. Data Backup & Restore
+
+
 ---
 
 # Technical Design Document
@@ -564,7 +649,7 @@ java -jar my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 ### 0. Document Info
 -  **Project** : my-server
 - **Version** : 1.0.0-SNAPSHOT
-- **Status** : Phase 2 - Application Maintenance Completed
+- **Status** : Phase 2 - Step 2.1 Completed (Database Migration Done)
 
 <br>
 
@@ -590,17 +675,23 @@ java -jar my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 #### 2.1. Evolutionary Architecture & Debt Management
 : 점진적 설계 지향
 
-- **Intentional Debt & Repayment** : MVP(Phase 1) 에서는 '작동하는 소프트웨어'를 위해 구조적 단순함을 선택, 확장 시점 (Phase 2)에 기술 부채를 상환(Refactoring) 하는 전략적 접근
-- **Test Safety Net** : Refactoring 이후 테스트 코드를 도입하여 변경으로 인한 회귀(Regression)를 방지, 지속적인 개선 가능성 확장
+- **Intentional Debt & Repayment** : MVP(Phase 1) 에서는 구조적 단순함을 선택, 확장 시점 (Phase 2)에 기술 부채를 상환(Refactoring) 하는 전략적 접근
+- **Test Safety Net** : 테스트 코드 도입으로 변경에 따른 회귀(Regression)를 방지 및 지속적 개선 기반 마련
 
 #### 2.2. Cross-Platform & Deployment Readiness
 : 크로스 플랫폼 및 배포 준비성
 
-- **OS-Independent Resource Handling** : OS 간 다양한 호환성 문제의 원천적 해결
-- **Shift-Left Security** : 배포 초기 단계에 HTTPS 및 리버스 프록시를 적용, 개발 / 운영 환경 간 보안 격차 조기 해소
+- **OS-Independent Resource Handling** : `toURI()` 등을 활용하여 OS 간 경로 표기법 차이로 인한 호환성 문제 원천 해결
+- **Shift-Left Security** : 초기 배포 단계부터 HTTPS 및 리버스 프록시를 적용하여 보안 격차 조기 해소
 
 #### 2.3. Environment Isolation & Configuration Management
 : 환경 격리 및 설정 관리
 
-- **Profile-Based Configuration** : 개발 / 운영 프로필 설정 분리
-- **Operational Consistency** : 설정 외부화를 통해 개발/운영 간 구성 차이로 인한 장애 위험 차단
+- **Profile-Based Configuration** : `local` / `prod` 프로필 설정 분리를 통해 환경별 설정 자동 적용
+- **Externalized Secrets** : `.env` 파일을 통한 민감 정보(DB credentials) 관리로 코드 보안성 강화
+
+#### 2.4. Data Infrastructure Scalability
+: 데이터 인프라 확장성
+
+- **Managed Database Migration** : Embedded DB(H2) 에서 Cloud Managed DB(AWS RDS/MySQL) 으로 이식하여 데이터 영속성 및 운영 안정성 확보
+- **Network Isolation** : Security Group 을 활용해 DB 접근을 신뢰할 수 있는 주체(Local, EC2) 로만 제한하여 보안 강화
