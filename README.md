@@ -5,6 +5,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
 ![H2 Database](https://img.shields.io/badge/H2-blue)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=MySQL&logoColor=white)
 
 > NCS ICT 직무(응용SW, DB, 보안, UI/UX, IT시스템관리) 를 연계하여  
 > 처음부터 끝까지 직접 구축해보는 나만의 웹 서버 프로젝트
@@ -49,7 +50,7 @@
 | 직무            | 프로젝트 내 역할          | 관련 기술/키워드                                                      |
 | :------------ | :----------------- | :------------------------------------------------------------- |
 | **응용SW엔지니어링** | 기능 개발 및 코드 관리      | CRUD, Refactoring                                              |
-| **DB엔지니어링**   | 데이터베이스 관리 및 구조     | Backup & Restore, DB Migration                                 |
+| **DB엔지니어링**   | 데이터베이스 관리 및 구조     | Backup & Restore, DB Migration, MySQL                          |
 | **IT시스템관리**   | 인프라 엔지니어링 및 보안     | Security Patch, Log Management, Resource Monitoring            |
 | **IT시스템관리**   | DevOps 엔지니어링 및 자동화 | CI/CD, GitHub Actions, Automated Testing, Automated Deployment |
 
@@ -73,6 +74,7 @@
 	- `Bootstrap 5`
 - **Database**
 	- `H2`
+	- `MySQL`
 - **Deployment**
 	- `AWS EC2 Linux / ami-2023`
 	- `Docker`
@@ -448,26 +450,26 @@ sudo certbot --nginx -d [MY_DOMAIN]
 
 - **Implementation**:
     - **Spring Data JPA**: `Pageable` 인터페이스와 `Page<T>` 객체 활용
-    - **Controller**: `@PageableDefault` 어노테이션을 사용하여 기본 페이지 크기(예: 20개) 및 정렬 조건(ID 내림차순) 설정
+    - **Controller**: `@PageableDefault` 어노테이션으로 기본 페이지 크기 및 정렬 조건 설정
     - **Service**: `Repository`로부터 반환된 `Page` 객체를 그대로 View로 전달
 - **View (Thymeleaf)**:
-	   - `posts.content`를 통해 실제 게시글 리스트 출력.
-    - `posts.totalPages`, `posts.number` 등의 메타 데이터를 활용하여 페이지 네비게이션(이전, 다음, 번호) UI 구현.
-	- 페이지 이동 링크에 `page` 파라미터 전달.
+	   - `posts.content`를 통해 실제 게시글 리스트 출력
+    - `posts.totalPages`, `posts.number` 등의 메타 데이터로 페이지 네비게이션 UI 구현
+	- 페이지 이동 링크에 `page` 파라미터 전달
 
 #### 4.2. Search Funcionality
 : 게시글의 제목이나 내용을 기준으로 데이터 필터링
 
 - **Implementation**:
-    - **Repository**: Spring Data JPA의 Query Methods 기능 사용.
-        - `findByTitleContainingOrContentContaining(String title, String content, Pageable pageable)`
-        - 메소드 명명 규칙을 통해 `LIKE` 쿼리 자동 생성 (`Containing`).
+    - **Repository**: Spring Data JPA의 Query Methods 기능 사용
+        - `findByTitleContainingOrContentContaining()`
+        - 메소드 명명 규칙을 통해 `LIKE` 쿼리 자동 생성 (`Containing`)
     - **Service**: 검색어(`keyword`) 존재 여부에 따른 분기 처리.
         - 검색어 없음: `findAll(pageable)` 호출.
         - 검색어 있음: 검색용 쿼리 메소드 호출.
-    - **Controller**: `@RequestParam(value = "keyword", required = false)`를 통해 검색어 수신 및 `Model`에 다시 담아 View로 전달.
+    - **Controller**: `@RequestParam()`를 통해 검색어 수신 및 `Model`에 다시 담아 View로 전달.
 - **State Persistence (상태 유지)**
-    : View의 페이지네이션 링크에 검색 파라미터를 추가하여, 검색 상태를 유지한 채로 페이지 이동 가능
+    : 검색 상태를 유지한 채로 페이지 이동 가능
 
 <br>
 
@@ -601,4 +603,4 @@ java -jar my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 : 환경 격리 및 설정 관리
 
 - **Profile-Based Configuration** : 개발 / 운영 프로필 설정 분리
-- **Operational Consistency** : 설정 외부화를 통해 개발 / 운영 간 구성 차이로 인한 장애 위험 차단
+- **Operational Consistency** : 설정 외부화를 통해 개발/운영 간 구성 차이로 인한 장애 위험 차단
