@@ -640,14 +640,14 @@ java -jar my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 <br>
 
 ### 2. Data Backup & Restore
-
+: 데이터 유실 방지를 위한 자동화된 백업 시스템 구축
 
 ---
 
 # Technical Design Document
 
 ### 0. Document Info
--  **Project** : my-server
+- **Project** : my-server
 - **Version** : 1.0.0-SNAPSHOT
 - **Status** : Phase 2 - Step 2.1 Completed (Database Migration Done)
 
@@ -656,17 +656,30 @@ java -jar my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 ## 1. Design Rationale & Trade-offs
 : 설계 결정 근거 및 상충 관계
 
-#### 1.1. Database Strategy : H2 File-based DB
-- **Rationale** : 학습 목적에 맞춰 DB 설치/설정 비용을 최소화하고 도메인 모델링에 집중
-- **Trade-offs** : Zero-configuration의 장점이 있으나, 운영 환경 확장 시 타 DBMS로의 이식 비용 발생
+#### 1.1. Database Strategy : Hybrid & Migration (H2 -> MySQL)
+- **Rationale**
+	- **Development (H2)** : 초기 DB 설치/설정 비용을 최소화하고 도메인 모델링에 집중
+	- **Production (MySQL)** : 운영 환경 진입 시 AWS RDS로 이관하여 데이터 안정성 및 확장성 확보
+- **Trade-offs**
+	- **Pros** : 로컬 개발의 편의성(H2)과 운영 환경의 신뢰성(MySQL) 을 동시 확보
+	- **Cons** : DB 이관 공수 및 환경별 설정 분리에 따른 관리 포인트 증가
 
 #### 1.2. Server-Side Rendering : Thymeleaf
-- **Rationale** : 백엔드 서버의 MVC 흐름 명확한 파악과 SEO 확보를 우선시.
-- **Trade-offs** : 개발 용이성이 높으나, 동적인 UX 구현에 제약.
+- **Rationale**
+	- Front/Back 분리보다 백엔드 서버의 MVC 흐름 파악을 우선시
+	- 서버 사이드 렌더링을 통한 초기 구현 속도 및 SEO 확보
+- **Trade-offs**
+	- **Pros** : 백엔드 중심의 빠른 개발 가능, 별도의 API 서버 구축 불필요
+	- **Cons** : 동적인 UX 구현에 제약, SPA 전환 시 구조 변경 필요
 
 #### 1.3. Layered Architecture
-- **Rationale** : SRP(단일 책임 원칙)와 OCP(개방-폐쇄 원칙) 적용으로 유지보수성 및 테스트 용이성 확보.
-- **Trade-offs** : 모듈화의 장점이 있으나, 소규모 프로젝트 초기에는 Boilerplate Code 증가.
+- **Rationale**
+	- SRP(단일 책임 원칙)을 적용하여 Controller-Service-Repository 역할 분리
+	- 인터페이스 도입을 통한 OCP(개방-폐쇄 원칙) 준수 및 테스트 용이성 확보
+- **Trade-offs**
+	- **Pros** : 높은 모듈화로 인한 유지보수성 향상, 영향 범위 최소화
+	- **Cons** : 소규모 프로젝트 초기에는 코드량(Boilerplate Code) 증가
+
 <br>
 
 ## 2. Architectural Strategy & Characteristics
