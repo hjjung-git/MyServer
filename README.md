@@ -642,6 +642,50 @@ java -jar my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 ### 2. Data Backup & Restore
 : 데이터 유실 방지를 위한 자동화된 백업 시스템 구축
 
+| 구분 | AWS RDS 자동 백업 ✅ | EC2 내부 스크립트 (Cron Job) |
+| :--- | :--- | :--- |
+| **실행 주체** | AWS (Cloud Managed) | 사용자 (EC2 Instance) |
+| **서버 상태 의존성** | <u>EC2 꺼져있어도 수행 가능</u> | EC2 반드시 켜져 있어야 함 |
+| **관리 편의성** | 콘솔 클릭 몇 번으로 설정 완료 | 쉘 스크립트 작성 및 Cron 설정 필요 |
+| **복구 방식** | 특정 시점 복구 (PITR) 가능 | 저장된 Dump 파일로 수동 복구 |
+| **비용** | 프리 티어 범위 내 무료 (스토리지 공유) | EBS 볼륨 추가 비용 발생 가능 |
+| **적합성** | **크레딧 이슈/비상시 운영**에 최적 | 24시간 가동 서버에 적합 |
+
+#### 2.1. Automated Backup Strategy (AWS RDS Snapshot)
+: RDS 자체 기능을 활용한 데이터 보호
+
+- **Backup Settings** (AWS Console)
+    
+    > 1. AWS RDS 콘솔 -> DB 인스턴스 선택 -> **[수정]** 클릭
+    >     
+    > 2. **백업 보존 기간** 설정
+    >     
+    >     > - 0일 (비활성화) -> **1일 이상**으로 변경
+    >     > - (프리 티어 기준 최대 7일 권장)
+    >     
+    > 3. **백업 기간** 설정
+    >     
+    >     > - 선호하는 기간 선택 (예: 03:00~04:00, 새벽 시간)
+    >     
+    > 4. **[즉시 적용]** 후 수정 완료
+    >     
+    
+
+#### 2.2. Recovery & Restore
+: 장애 발생 시 데이터 복구 절차
+
+- **Recovery Process**
+    
+    > 1. **삭제 방지**: DB 삭제 시 **[최종 스냅샷 생성]** 반드시 체크
+    > 2. **복원 방법**
+    >     
+    >     > - RDS 콘솔 -> **[스냅샷]** 메뉴 이동
+    >     > - 원하는 시점의 스냅샷 선택 -> **[복원]**
+    >     > - 새로운 DB 인스턴스 생성 (기존 DB는 삭제 후 엔드포인트 변경하여 연결)
+
+<br>
+
+
 ---
 
 # Technical Design Document
@@ -649,7 +693,7 @@ java -jar my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 ### 0. Document Info
 - **Project** : my-server
 - **Version** : 1.0.0-SNAPSHOT
-- **Status** : Phase 2 - Step 2.1 Completed (Database Migration Done)
+- **Status** : Phase 2 - Step 2.2 Completed (Backup & Restore Done)
 
 <br>
 
