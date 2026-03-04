@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>JHJ's Log</title>
@@ -16,9 +17,31 @@
     </style>
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="/main/list">JHJ's Log</a>
+
+        <div class="d-flex"> <!-- ms-auto 대신 d-flex로 정렬 -->
+            <!-- 로그인 안 했을 때 -->
+            <div sec:authorize="isAnonymous()">
+                <a href="/user/login" class="btn btn-outline-primary btn-sm me-2">로그인</a>
+                <a href="/user/join" class="btn btn-primary btn-sm">회원가입</a>
+            </div>
+
+            <!-- 로그인 했을 때 -->
+            <div sec:authorize="isAuthenticated()">
+            <span class="navbar-text me-3" style="font-size: 0.9rem;">
+              환영합니다, <b sec:authentication="name"></b>님!
+            </span>
+                <a href="/user/logout" class="btn btn-outline-danger btn-sm">로그아웃</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
 <div class="container">
     <div class="d-flex justify-content-between align-items-center my-4">
-        <h1>포스트 목록</h1>
+        <h3>포스트 목록</h3>
 
         <!-- 검색창 -->
         <form th:action="@{/main/list}" method="get" class="row g-3 mb-3">
@@ -39,11 +62,10 @@
     <table class="table table-striped">
         <thead>
         <tr>
-            <th style="width: 5%;">번호</th>
+            <th style="width: 10%;">번호</th>
             <th style="width: 50%;">제목</th>
-            <th style="width: 15%;">작성자</th>
-            <th style="width: 15%;">수정 시간</th>
-            <th style="width: 15%;">관리</th>
+            <th style="width: 20%;">작성자</th>
+            <th style="width: 20%;">작성일</th>
         </tr>
         </thead>
         <tbody>
@@ -54,11 +76,6 @@
             </td>
             <td th:text="${post.username}">작성자</td>
             <td th:text="${#temporals.format(post.lastModifiedAt, 'yyyy-MM-dd HH:mm', 'Asia/Seoul')}">2024-01-01 12:34</td>
-            <td>
-                <a th:href="@{/post/edit/{id}(id=${post.id})}" class="btn btn-warning btn-sm me-1">수정</a>
-                <a th:href="@{/post/delete/{id}(id=${post.id})}" class="btn btn-danger btn-sm"
-                   onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
-            </td>
         </tr>
         </tbody>
     </table>

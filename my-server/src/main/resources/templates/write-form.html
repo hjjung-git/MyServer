@@ -19,11 +19,6 @@
                     <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-danger mt-1"></div>
                 </div>
                 <div class="mb-3">
-                    <label for="username" class="form-label">작성자</label>
-                    <input type="text" th:field="*{username}" id="username" class="form-control" placeholder="작성자">
-                    <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger mt-1"></div>
-                </div>
-                <div class="mb-3">
                     <label for="content" class="form-label">내용</label>
                     <textarea th:field="*{content}" id="content" class="form-control" rows="15" placeholder="내용을 입력하세요"></textarea>
                     <div th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="text-danger mt-1"></div>

@@ -1,11 +1,11 @@
 
 # MyServer Project
 
-![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=java&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
-![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
-![H2 Database](https://img.shields.io/badge/H2-blue)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=MySQL&logoColor=white)
+![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=java&logoColor=white)![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)![Thymeleaf](https://img.shields.io/badge/Thymeleaf-005F0F?style=flat-square&logo=thymeleaf&logoColor=white)![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=flat-square&logo=bootstrap&logoColor=white)
+
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white)![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat-square&logo=nginx&logoColor=white)![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)![H2 Database](https://img.shields.io/badge/H2-003B57?style=flat-square&logo=h2&logoColor=white)
+
+![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ%20IDEA-000000?style=flat-square&logo=intellijidea&logoColor=white)![Maven](https://img.shields.io/badge/Maven-C71A36?style=flat-square&logo=apachemaven&logoColor=white)
 
 > NCS ICT 직무(응용SW, DB, 보안, UI/UX, IT시스템관리) 를 연계하여  
 > 처음부터 끝까지 직접 구축해보는 나만의 웹 서버 프로젝트
@@ -35,24 +35,24 @@
 
 #### Phase 1 : Server Setting
 
-| 직무             | 프로젝트 내 역할               | 관련 기술/키워드                                 |
-| :------------- | :---------------------- | :---------------------------------------- |
-| **응용SW엔지니어링**  | 서비스의 핵심 로직 및 API 개발     | Java, Spring Boot, RESTful API            |
-| **DB엔지니어링**    | 데이터 모델링 및 영속성 관리        | H2, JPA, CRUD                             |
-| **UI/UX엔지니어링** | 사용자 인터페이스 설계 및 구현       | HTML, CSS, Bootstrap, 반응형 웹               |
-| **IT시스템관리**    | 서버 구축, 배포 및 운영          | AWS EC2, Docker, Nginx                    |
-| **보안엔지니어링**    | 인증/인가, 데이터 암호화 및 취약점 방어 | HTTPS, Password Hashing, Input Validation |
+| 직무             | 프로젝트 내 역할               | 관련 기술/키워드                      |
+| :------------- | :---------------------- | :----------------------------- |
+| **응용SW엔지니어링**  | 서비스의 핵심 로직 및 API 개발     | Java, Spring Boot, RESTful API |
+| **DB엔지니어링**    | 데이터 모델링 및 영속성 관리        | H2, JPA, CRUD                  |
+| **UI/UX엔지니어링** | 사용자 인터페이스 설계 및 구현       | HTML, CSS, Bootstrap, 반응형 웹    |
+| **IT시스템관리**    | 서버 구축, 배포 및 운영          | AWS EC2, Docker, Nginx         |
+| **보안엔지니어링**    | 인증/인가, 데이터 암호화 및 취약점 방어 | HTTPS, Input Validation        |
 
 <br>
 
 #### Phase 2 : Server Maintenance
 
-| 직무            | 프로젝트 내 역할          | 관련 기술/키워드                                                      |
-| :------------ | :----------------- | :------------------------------------------------------------- |
-| **응용SW엔지니어링** | 기능 개발 및 코드 관리      | CRUD, Refactoring                                              |
-| **DB엔지니어링**   | 데이터베이스 관리 및 구조     | Backup & Restore, DB Migration, MySQL                          |
-| **IT시스템관리**   | 인프라 엔지니어링 및 보안     | Security Patch, Log Management, Resource Monitoring            |
-| **IT시스템관리**   | DevOps 엔지니어링 및 자동화 | CI/CD, GitHub Actions, Automated Testing, Automated Deployment |
+| 직무            | 프로젝트 내 역할       | 관련 기술/키워드                                                                |
+| :------------ | :-------------- | :----------------------------------------------------------------------- |
+| **응용SW엔지니어링** | 기능 개발 및 코드 관리   | Layered Architecture, CRUD, Refactoring, Config Externalization          |
+| **DB엔지니어링**   | 데이터베이스 관리 및 구조  | Backup & Restore, DB Migration, AWS RDS (MySQL)                          |
+| **보안엔지니어링**   | 사용자 인증 및 접근 제어  | Spring Security, Authentication, Authorization, Password Encryption      |
+| **IT시스템관리**   | 인프라 운영 및 배포 자동화 | Log Management, OS Security, Resource Monitoring, CI/CD (GitHub Actions) |
 
 <br>
 
@@ -76,9 +76,9 @@
 	- `H2`
 	- `MySQL`
 - **Deployment**
-	- `AWS EC2 Linux / ami-2023`
-	- `Docker`
-	- `Nginx (Web Server)`
+	- `AWS EC2 (Amazon Linux 2023)`
+	- `JAR (Executable Archive)`
+	- `Nginx (Reverse Proxy)`
 - **Tools**
 	- IDE
 		- `IntelliJ IDEA (Community Edition)`
@@ -93,7 +93,7 @@
 
 # Phase 1 : How to set up my WebServer
 
-## Step 1. Development Environment Setup & Testing
+## Step 1. Development Environment Setup
 
 ### 1. Arranging Development Environment
 
@@ -196,7 +196,7 @@ spring.jpa.hibernate.ddl-auto=update
 
 <br>
 
-### 3. View Implementation
+### 3. Implement View
 - **Templates** : `src/main/resources/templates/`경로에 HTML 파일 생성
 - **Styling** : Bootstrap(CDN) 을 적용하여 UI 디자인 구성
 
@@ -354,7 +354,7 @@ sudo certbot --nginx -d [MY_DOMAIN]
 
 # Phase 2 : Maintaining & Operation
 
-## Step 1. Application Maintenance
+## Step 1. Feature & Code Management
 : 사용자 친화적인 완성도 있는 서비스 제공
 
 ### 1. Architecture Refactoring
@@ -685,6 +685,98 @@ java -jar my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 
 <br>
 
+
+<br>
+
+## Step 3. User Authentication and Access Control
+
+### 1. Spring Security
+
+#### 1.1. Dependency (`pom.xml`)
+> `spring-boot-starter-security  
+> `thymeleaf-extras-springsecurity6`  
+
+-> 추가 후 서버 실행 시, 모든 페이지가 로그인 화면으로 가로채진다.
+
+#### 1.2. Concept
+: Spring Security의 두 핵심 개념
+- **Authentication** : 사용자의 신원 확인
+- **Authorization** : 인증된 사용자의 권한 확인
+
+<br>
+
+### 2. User Model & Repository
+
+#### 2.1. Create Role Enum
+: 권한 분류를 위한 Enum 타입 정의
+
+> Enum 분류 클래스 `domain/Role.java` 생성
+
+#### 2.2. Create User Entity
+: 사용자의 정보를 저장할 엔터티 생성
+
+> 유저 엔터티 클래스 `domain/User.java` 생성
+
+#### 2.3. Create UserRepository
+: DB에서 사용자 조회를 위한 인터페이스
+
+> `User` 엔터티의 Repository 인터페이스 `repository/UserRepository.java`생성
+
+<br>
+
+### 3. Security Configuration
+
+#### 3.1. Create Security Config
+: Spring Security 의 핵심 설정 담당
+
+> Spring Security 설정 클래스 `config/SecurityConfig.java` 생성
+
+#### 3.2. Implement UserDetails
+: Spring Security 와 엔터티 `User` 의 연결
+
+> `User.java` 가 `UserDetail` 인터페이스(Spring Security 내부 인터페이스)를 구현하도록 수정  
+> 로그인 로직 인터페이스 `UserDetailsService`의 구현체 `service/UserSecurityService.java` 구현
+
+<br>
+
+### 4. Authentication Service
+
+#### 4.1. Implementation
+
+1) **Service**
+> 회원가입 로직 클래스 `service/UserService.java` 구현
+
+2) **Controller**
+> 로그인 및 회원가입 페이지와 처리를 담당하는 클래스 `controller/UserController.java` 구현
+
+3) **View**
+> 로그인 폼 `templates/user/login.html` 구현  
+> 회원가입 폼 `templates/user/join.html` 구현
+
+<br>
+
+### 5. UI Integration & Authorization
+: 로그인/아웃 버튼, 게시글 작성자에게만 수정/삭제 권한 부여
+
+#### 5.1. Refactoring
+
+1) **Domain**
+> `Post`엔터티에 `User` 정보를 반영할 수 있도록 `domain/Post.java`수정
+
+2) **Service**
+> 작성자 인스턴스를 저장할 수 있도록 구현체 `service/PostServiceImpl.java` 수정
+
+3) **View**
+> 로그인 상태에 따라 버튼이 바뀌도록 `list.html` 수정  
+> 작성자와 로그인 사용자가 같을 때만 버튼이 보이도록 `detail.html`수정
+
+
+<br>
+
+
+<br>
+
+## Step 4. Infrastructure Maintenance
 
 ---
 

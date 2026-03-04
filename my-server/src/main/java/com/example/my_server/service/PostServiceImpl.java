@@ -1,18 +1,22 @@
 package com.example.my_server.service;
 
 import com.example.my_server.domain.Post;
+import com.example.my_server.domain.User;
 import com.example.my_server.exception.PostNotFoundException;
 import com.example.my_server.repository.PostRepository;
+import com.example.my_server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -20,13 +24,17 @@ import java.util.UUID;
 public class PostServiceImpl implements PostService
 {
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     // Properties 에서 설정한 경로를 받음
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public PostServiceImpl(PostRepository postRepository)
-    { this.postRepository = postRepository; }
+    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository)
+    {
+        this.postRepository = postRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     public Page<Post> list(String keyword, Pageable pageable) {
@@ -50,16 +58,31 @@ public class PostServiceImpl implements PostService
     @Transactional
     public Long save(Post post, MultipartFile file) throws IOException
     {
-        // 1. 파일 존재 시 저장 처리
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
+
+        String username;
+        if (principal instanceof UserDetails)
+        { username = ((UserDetails) principal).getUsername(); }
+        else if (principal instanceof String)
+        { username = (String) principal; }
+        else
+        { throw new RuntimeException("로그인 정보를 찾을 수 없습니다."); }
+
+        User user = userRepository.findByLoginId(username)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습ㄴ디ㅏ."));
+
+        post.setUser(user);
+        post.setUsername(user.getNickname());
+
+
         if (file != null && !file.isEmpty())
         {
             String savedFilePath = saveFile(file);
             post.setFilePath(savedFilePath);
         }
 
-        // 2. 게시글 저장
-        Post savedPost = postRepository.save(post);
-        return savedPost.getId();
+        return postRepository.save(post).getId();
     }
 
     private String saveFile(MultipartFile file) throws IOException
