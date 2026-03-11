@@ -785,62 +785,286 @@ java -jar my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 ### 0. Document Info
 - **Project** : my-server
 - **Version** : 1.0.0-SNAPSHOT
-- **Status** : Phase 2 - Step 2.2 Completed (Backup & Restore Done)
+- **Status** : Phase 2 - Step 3 Completed (User Authentication & Access Control Done)
 
 <br>
 
 ## 1. Design Rationale & Trade-offs
-: 설계 결정 근거 및 상충 관계
+: 프로젝트의 주요 설계 결정과 그에 따른 장단점
+### 1.1. Full-Stack Learning Architecture
 
-#### 1.1. Database Strategy : Hybrid & Migration (H2 -> MySQL)
-- **Rationale**
-	- **Development (H2)** : 초기 DB 설치/설정 비용을 최소화하고 도메인 모델링에 집중
-	- **Production (MySQL)** : 운영 환경 진입 시 AWS RDS로 이관하여 데이터 안정성 및 확장성 확보
-- **Trade-offs**
-	- **Pros** : 로컬 개발의 편의성(H2)과 운영 환경의 신뢰성(MySQL) 을 동시 확보
-	- **Cons** : DB 이관 공수 및 환경별 설정 분리에 따른 관리 포인트 증가
+**Rationale**
+- NCS ICT 직무(응용SW, DB, 보안, UI/UX, IT시스템관리)를 하나의 서비스 안에서 통합적으로 경험하기 위한 구조
+- 단순 기능 개발이 아니라 **개발 → 배포 → 운영 → 유지보수** 전 과정을 직접 구축하는 것을 목표로 설계
+    
+**Trade-offs**
 
-#### 1.2. Server-Side Rendering : Thymeleaf
-- **Rationale**
-	- Front/Back 분리보다 백엔드 서버의 MVC 흐름 파악을 우선시
-	- 서버 사이드 렌더링을 통한 초기 구현 속도 및 SEO 확보
-- **Trade-offs**
-	- **Pros** : 백엔드 중심의 빠른 개발 가능, 별도의 API 서버 구축 불필요
-	- **Cons** : 동적인 UX 구현에 제약, SPA 전환 시 구조 변경 필요
-
-#### 1.3. Layered Architecture
-- **Rationale**
-	- SRP(단일 책임 원칙)을 적용하여 Controller-Service-Repository 역할 분리
-	- 인터페이스 도입을 통한 OCP(개방-폐쇄 원칙) 준수 및 테스트 용이성 확보
-- **Trade-offs**
-	- **Pros** : 높은 모듈화로 인한 유지보수성 향상, 영향 범위 최소화
-	- **Cons** : 소규모 프로젝트 초기에는 코드량(Boilerplate Code) 증가
+|Pros|Cons|
+|---|---|
+|백엔드, DB, 인프라, 보안을 하나의 프로젝트에서 통합적으로 경험 가능|단일 프로젝트 안에서 다뤄야 할 범위가 넓어 설계 복잡도 증가|
 
 <br>
 
-## 2. Architectural Strategy & Characteristics
-: 아키텍처 전략 및 특성
+### 1.2. Layered Architecture
 
-#### 2.1. Evolutionary Architecture & Debt Management
-: 점진적 설계 지향
+**Rationale**
+- Controller / Service / Repository 계층 분리를 통해 **관심사 분리(SoC)** 적용
+- Service 인터페이스와 구현체 분리를 통해 테스트 및 확장 용이성 확보
 
-- **Intentional Debt & Repayment** : MVP(Phase 1) 에서는 구조적 단순함을 선택, 확장 시점 (Phase 2)에 기술 부채를 상환(Refactoring) 하는 전략적 접근
-- **Test Safety Net** : 테스트 코드 도입으로 변경에 따른 회귀(Regression)를 방지 및 지속적 개선 기반 마련
+**Trade-offs**
 
-#### 2.2. Cross-Platform & Deployment Readiness
-: 크로스 플랫폼 및 배포 준비성
+| Pros            | Cons                 |
+| --------------- | -------------------- |
+| 유지보수성과 모듈성이 높아짐 | 초기 프로젝트 규모 대비 코드량 증가 |
 
-- **OS-Independent Resource Handling** : `toURI()` 등을 활용하여 OS 간 경로 표기법 차이로 인한 호환성 문제 원천 해결
-- **Shift-Left Security** : 초기 배포 단계부터 HTTPS 및 리버스 프록시를 적용하여 보안 격차 조기 해소
+<br>
 
-#### 2.3. Environment Isolation & Configuration Management
-: 환경 격리 및 설정 관리
+### 1.3. Server-Side Rendering (Thymeleaf)
 
-- **Profile-Based Configuration** : `local` / `prod` 프로필 설정 분리를 통해 환경별 설정 자동 적용
-- **Externalized Secrets** : `.env` 파일을 통한 민감 정보(DB credentials) 관리로 코드 보안성 강화
+**Rationale**
+- Frontend/Backend 분리보다 **Spring MVC 흐름 이해**를 우선
+- 게시판 기반 서비스에서 빠른 구현과 안정적인 서버 렌더링 구조 확보
 
-#### 2.4. Data Infrastructure Scalability
-: 데이터 인프라 확장성
+**Trade-offs**
 
-- **Managed Database Migration** : Embedded DB(H2) 에서 Cloud Managed DB(AWS RDS/MySQL) 으로 이식하여 데이터 영속성 및 운영 안정성 확보
-- **Network Isolation** : Security Group 을 활용해 DB 접근을 신뢰할 수 있는 주체(Local, EC2) 로만 제한하여 보안 강화
+|Pros|Cons|
+|---|---|
+|구현 속도가 빠르고 서버 중심 아키텍처 이해에 유리|SPA 수준의 동적 UX 구현에는 제약|
+
+<br>
+
+### 1.4. Hybrid Database Strategy (H2 → MySQL)
+
+**Rationale**
+- **Development** : H2 DB를 사용하여 빠른 개발 및 테스트 환경 구성
+- **Production** : AWS RDS MySQL을 사용하여 데이터 안정성과 확장성 확보
+
+**Trade-offs**
+
+|Pros|Cons|
+|---|---|
+|개발 편의성과 운영 안정성을 동시에 확보|DB 환경 차이로 인한 설정 관리 필요|
+
+<br>
+
+### 1.5. Session-Based Authentication
+
+**Rationale**
+- Spring Security 기반 **세션 인증 방식** 적용
+- 사용자 인증 및 게시글 권한 제어를 서버 중심으로 관리
+
+**Trade-offs**
+
+| Pros                       | Cons                              |
+| -------------------------- | --------------------------------- |
+| 전통적인 웹 애플리케이션 구조와 자연스럽게 통합 | API 기반 서비스 확장 시 토큰 인증 방식 추가 설계 필요 |
+
+<br>
+
+---
+
+# 2. Architectural Strategy & Characteristics
+: 프로젝트의 구조적 전략 및 특성
+
+### 2.1. Evolutionary Architecture
+
+- Phase 1 : 빠른 구현을 통한 기본 서버 구축
+- Phase 2 : 구조 개선 및 운영 안정성 확보
+
+프로젝트는 **점진적 설계(Evolutionary Architecture)** 전략을 따른다.
+
+초기에는 기능 구현에 집중하고, 이후 단계에서
+
+- Layered Architecture 적용
+- 예외 처리 구조 정비
+- 테스트 코드 도입
+- 보안 및 인증 시스템 적용
+
+을 통해 구조를 개선하였다.
+
+<br>
+
+### 2.2. Environment Isolation
+
+개발 환경과 운영 환경을 명확히 분리하였다.
+
+|Environment|Database|Profile|
+|---|---|---|
+|Local|H2|`local`|
+|Production|AWS RDS MySQL|`prod`|
+
+- `application-local.properties`
+- `application-prod.properties`
+
+를 통해 **환경별 설정을 분리**하였다.
+
+또한 DB 계정 정보와 같은 민감 정보는 **외부 설정으로 관리**하도록 설계하였다.
+
+<br>
+
+### 2.3. Deployment Readiness
+
+프로젝트는 **클라우드 환경에서 직접 운영 가능한 구조**를 목표로 한다.
+
+Deployment Architecture
+```
+User  
+  ↓  
+Domain (HTTPS)  
+  ↓  
+Nginx (Reverse Proxy)  
+  ↓  
+Spring Boot Application (JAR)  
+  ↓  
+AWS RDS (MySQL)
+```
+
+주요 특징
+- EC2 기반 서버 운영
+- Nginx Reverse Proxy 적용
+- HTTPS 인증서 적용 (Certbot)
+- Executable JAR 배포 구조
+
+Docker 없이도 **배포 흐름을 이해할 수 있도록 단순한 구조를 유지**하였다.
+
+<br>
+
+### 2.4. Maintainability First
+
+프로젝트 설계의 핵심 기준은 **유지보수성**이다.
+
+이를 위해 다음 구조를 적용하였다.
+
+- Layered Architecture
+- Global Exception Handler
+- Validation 기반 입력 검증
+- Service 계층 중심 비즈니스 로직 관리
+- 테스트 코드 기반 품질 보장
+
+새로운 기능이 추가되어도 **기존 구조를 크게 변경하지 않도록 설계**하였다.
+
+<br>
+
+### 2.5. Security by Design
+
+초기 배포 단계부터 보안을 고려한 설계를 적용하였다.
+
+주요 보안 요소
+- Spring Security 기반 인증 시스템
+- BCrypt 기반 비밀번호 암호화
+- 작성자 기반 게시글 권한 제어
+- AWS Security Group 기반 네트워크 제한
+- HTTPS 통신 적용
+
+이를 통해 **기본적인 웹 서비스 보안 구조를 확보하였다.**
+
+<br>
+
+---
+
+# 3. Current Design Decisions
+: 현재 프로젝트에서 확정된 핵심 설계 사항
+### 3.1. User Identity Modeling
+
+사용자 식별을 위해 두 가지 필드를 분리하였다.
+
+|Field|Purpose|
+|---|---|
+|`loginId`|로그인 인증용 ID|
+|`username`|화면 표시용 사용자 이름|
+
+이를 통해 **인증 식별자와 UI 표시 데이터를 분리**하였다.
+
+<br>
+
+### 3.2. Post Ownership
+
+게시글과 사용자 관계를 다음과 같이 설계하였다.
+
+```
+User 1 ---- N Post
+```
+
+권한 제어 기준
+- 게시글 작성자만 수정 가능
+- 게시글 작성자만 삭제 가능
+
+권한 검증은
+- View 조건
+- Service 로직
+
+두 계층에서 모두 수행한다.
+
+<br>
+
+### 3.3. File Upload Strategy
+
+파일 업로드는 **서버 로컬 스토리지 기반**으로 구현하였다.
+
+주요 특징
+- UUID 기반 파일명 생성
+- OS 독립 경로 처리
+- Resource Handler를 통한 웹 접근 매핑
+
+향후 확장 시
+- AWS S3 기반 저장소로 이전 가능하도록 설계하였다.
+
+<br>
+
+### 3.4. Local H2 Strategy
+
+로컬 개발 환경에서는 H2 Database를 사용한다.
+
+현재 설정
+```
+jdbc:h2:mem:testdb
+```
+
+인메모리 모드를 사용하여
+- 개발 안정성 확보
+- 스키마 변경 테스트 용이성 확보
+
+향후 필요 시 **파일 기반 DB로 재구성 가능**하도록 고려하였다.
+
+<br>
+
+---
+
+# 4. Next Architectural Focus
+: 다음 단계에서 강화할 운영 설계 영역
+### 4.1. Log Management
+
+현재 애플리케이션 로그는 `nohup.out` 중심으로 관리되고 있다.
+
+다음 단계에서는
+- Logback 기반 로그 관리
+- 로그 레벨 분리 (INFO / WARN / ERROR)
+- 로그 롤링 정책 적용
+
+을 통해 **운영 장애 분석 능력을 강화할 예정이다.**
+
+<br>
+
+### 4.2. CI/CD Automation
+
+현재 배포 방식
+```
+Build → SCP → SSH → Run
+```
+
+다음 단계 목표
+- GitHub Actions 기반 자동 빌드
+- 자동 배포 파이프라인 구축
+- 배포 반복성 및 안정성 확보
+
+<br>
+
+### 4.3. Infrastructure Hygiene
+
+운영 서버 유지보수를 위해 다음 항목을 관리할 예정이다.
+- OS 패키지 업데이트
+- Nginx / Java Runtime 점검
+- 접근 권한 및 Security Group 점검
+- 서버 리소스 모니터링
+
+이를 통해 **운영 환경의 안정성과 보안을 지속적으로 유지한다.**
