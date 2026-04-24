@@ -36,7 +36,8 @@ public class SecurityConfig
                 .logout((logout) -> logout
                         .logoutUrl("/user/logout")
                         .logoutSuccessUrl("/main/list")
-                        .permitAll()
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                 )
 
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))

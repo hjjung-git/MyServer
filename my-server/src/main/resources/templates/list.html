@@ -29,11 +29,13 @@
             </div>
 
             <!-- 로그인 했을 때 -->
-            <div sec:authorize="isAuthenticated()">
-            <span class="navbar-text me-3" style="font-size: 0.9rem;">
-              환영합니다, <b sec:authentication="name"></b>님!
-            </span>
-                <a href="/user/logout" class="btn btn-outline-danger btn-sm">로그아웃</a>
+            <div sec:authorize="isAuthenticated()" class="d-flex align-items-center">
+                <span class="navbar-text me-3" style="font-size: 0.9rem;">
+                환영합니다, <b sec:authentication="name"></b>님!
+                </span>
+                <form th:action="@{/user/logout}" method="post" style="margin: 0;">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">로그아웃</button>
+                </form>
             </div>
         </div>
     </div>
@@ -74,7 +76,7 @@
             <td>
                 <a th:href="@{/post/detail/{id}(id=${post.id})}" class="post-title-link" th:text="${post.title}">제목</a>
             </td>
-            <td th:text="${post.username}">작성자</td>
+            <td th:text="${post.user != null ? post.user.username : '알 수 없음'}">작성자</td>
             <td th:text="${#temporals.format(post.lastModifiedAt, 'yyyy-MM-dd HH:mm', 'Asia/Seoul')}">2024-01-01 12:34</td>
         </tr>
         </tbody>
