@@ -23,6 +23,7 @@ public class SecurityConfig
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/main/list/**", "/user/**", "/uploads/**", "/h2-console/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/post/delete/**").hasAnyRole("ADMIN", "USER")
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form

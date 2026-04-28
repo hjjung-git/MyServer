@@ -60,10 +60,13 @@ public class PostController
     @PostMapping("/post/write")
     public String writePost(@Valid Post post,
                             BindingResult bindingResult,
-                            @RequestParam("file") MultipartFile file) throws IOException
+                            @RequestParam(value = "file", required = false) MultipartFile file) throws IOException
     {
         if (bindingResult.hasErrors())
-        { return "write-form"; }
+        {
+            System.out.println("검증 에러 발생 : " + bindingResult.getAllErrors());
+            return "write-form";
+        }
 
         postServiceImpl.save(post, file);
         return "redirect:/main/list";

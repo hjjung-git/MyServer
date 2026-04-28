@@ -1,8 +1,12 @@
 package com.example.my_server.service;
 
 import com.example.my_server.domain.Post;
+import com.example.my_server.domain.Role;
+import com.example.my_server.domain.User;
 import com.example.my_server.exception.PostNotFoundException;
 import com.example.my_server.repository.PostRepository;
+import com.example.my_server.repository.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException; // 추가
 import java.util.Optional;
@@ -25,6 +32,9 @@ class PostServiceTest
     @Mock
     private PostRepository postRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
     @InjectMocks
     private PostServiceImpl postService;
 
@@ -32,23 +42,34 @@ class PostServiceTest
 
     @BeforeEach
     void setUp()
-    { post = new Post("테스트 제목", "테스터", "테스트 내용"); }
+    {
+        post = new Post("테스트 제목", "테스터", "테스트 내용");
+
+        User user = new User("testUser", "password", Role.USER);
+        Authentication authentication = new UsernamePasswordAuthenticationToken("user", null, user.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    @AfterEach
+    void tearDown()
+    { SecurityContextHolder.clearContext(); }
 
     @Test
     @DisplayName("게시글 저장 - 성공")
     void savePost_Success() throws IOException // ✅ throws IOException 추가
     {
         // given
-        given(postRepository.save(any(Post.class))).willAnswer(invocation -> {
-            Post argument = invocation.getArgument(0);
-            return argument;
-        });
+        User user = new User("testUser", "password", Role.USER);
+        given(userRepository.findByLoginId(any())).willReturn(Optional.of(user));
+
+        // postRepository 저장 로직
+        given(postRepository.save(any(Post.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        // ✅ 두 번째 인자로 null 전달 (파일 업로드 없는 경우 테스트)
         Long savedId = postService.save(post, null);
 
         // then
+        verify(userRepository).findByLoginId(any());
         verify(postRepository).save(any(Post.class));
     }
 

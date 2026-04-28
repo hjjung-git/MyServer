@@ -22,7 +22,6 @@ public class Post
     @Column(nullable = false, length = 100)
     private String title; // 새로 추가된 제목 필드
 
-    @NotBlank(message = "작성자 이름은 비워둘 수 없습니다.")
     @Column(nullable = false)
     private String username; // 작성자
 
