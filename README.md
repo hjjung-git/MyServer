@@ -59,9 +59,9 @@
 | 단계 | 내용 | 상태 |
 | :--- | :--- | :---: |
 | Step 1 | Service 레이어 권한 검증 | ✅ |
-| Step 2 | Rate Limiting · XSS / CSRF 방어 | ⬜ |
-| Step 3 | 민감정보 외부화 (환경변수 / Secrets Manager) | ⬜ |
-| Step 4 | 컨트롤러 보안 테스트 | ⬜ |
+| Step 2 | Rate Limiting · XSS / CSRF 방어 | ✅ |
+| Step 3 | 민감정보 외부화 (환경변수 / Secrets Manager) | ✅ |
+| Step 4 | 컨트롤러 보안 테스트 | ✅ |
 
 ### Phase 4 — Service Transformation
 

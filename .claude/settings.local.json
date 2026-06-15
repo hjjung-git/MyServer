@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mvn clean *)"
+      "Bash(mvn clean *)",
+      "Bash(xargs cat -n)",
+      "Bash(mvn test *)",
+      "Bash(mvn dependency:tree -Dincludes=\"org.springframework.boot:spring-boot-test*\")",
+      "Bash(xargs -I{} jar tf {})",
+      "Bash(jar tf *)",
+      "Bash(find ~/.m2/repository/org/springframework/boot -name \"*webmvc*test*\" -o -name \"*web*mvc*test*\" 2>/dev/null | head -10)",
+      "Bash(grep -v \"/$\")"
     ]
   }
 }

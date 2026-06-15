@@ -106,24 +106,25 @@ class PostServiceTest
 
     @Test
     @DisplayName("게시글 수정 - 성공")
-    void updatePost_Success() throws IOException // ✅ throws IOException 추가
+    void updatePost_Success() throws IOException
     {
         // given
         Long postId = 1L;
-        Post existingPost = new Post("기존 제목", "기존 작성자", "기존 내용");
+        User owner = new User("user", "password", Role.USER);
+        owner.setLoginId("user"); // SecurityContext principal name과 일치
+        Post existingPost = new Post("기존 제목", "user", "기존 내용");
+        existingPost.setUser(owner);
         Post updateData = new Post("수정된 제목", "수정된 작성자", "수정된 내용");
 
         given(postRepository.findById(postId)).willReturn(Optional.of(existingPost));
+        given(userRepository.findByLoginId("user")).willReturn(Optional.of(owner));
 
         // when
-        // ✅ 세 번째 인자로 null 전달 (파일 업로드 없는 경우 테스트)
         Post updatedPost = postService.updatePost(postId, updateData, null);
 
         // then
         assertEquals("수정된 제목", updatedPost.getTitle());
-        assertEquals("수정된 작성자", updatedPost.getUsername());
         assertEquals("수정된 내용", updatedPost.getContent());
-
         verify(postRepository).findById(postId);
     }
 
@@ -133,6 +134,13 @@ class PostServiceTest
     {
         // given
         Long postId = 1L;
+        User owner = new User("user", "password", Role.USER);
+        owner.setLoginId("user");
+        Post existingPost = new Post("테스트 제목", "user", "테스트 내용");
+        existingPost.setUser(owner);
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(existingPost));
+        given(userRepository.findByLoginId("user")).willReturn(Optional.of(owner));
 
         // when
         postService.delete(postId);

@@ -9,9 +9,14 @@
 <div class="card p-4" style="width: 400px;">
     <h3 class="text-center mb-4">로그인</h3>
 
-    <!-- 에러 메시지 -->
-    <div th:if="${error}" class="alert alert-danger" role="alert">
-        <span th:text="${exception}">로그인 실패</span>
+    <!-- 차단 메시지 -->
+    <div th:if="${param.error == 'blocked'}" class="alert alert-warning" role="alert">
+        로그인 시도가 너무 많습니다. 15분 후에 다시 시도해주세요.
+    </div>
+
+    <!-- 일반 에러 메시지 -->
+    <div th:if="${param.error != null and param.error != 'blocked'}" class="alert alert-danger" role="alert">
+        아이디 또는 비밀번호가 올바르지 않습니다.
     </div>
 
     <!-- SecurityConfig의 .loginProcessingUrl("/user/loginProc")와 맞춰야 함 -->

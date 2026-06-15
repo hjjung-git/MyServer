@@ -81,6 +81,9 @@ After=network.target
 [Service]
 User=ec2-user
 WorkingDirectory=/home/ec2-user
+Environment=DATABASE_URL=jdbc:mysql://[RDS_ENDPOINT]:3306/[DB_NAME]
+Environment=DATABASE_USERNAME=[DB_USERNAME]
+Environment=DATABASE_PASSWORD=[DB_PASSWORD]
 ExecStart=/usr/bin/java -jar /home/ec2-user/my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 Restart=on-failure
 RestartSec=10
@@ -98,6 +101,11 @@ sudo systemctl daemon-reload
 sudo systemctl enable my-server    # 부팅 시 자동 시작 등록
 sudo systemctl start my-server     # 즉시 시작
 ```
+
+> 서비스 파일에는 DB 비밀번호 등 민감정보가 포함되어 있으므로 권한을 제한한다.
+> ```bash
+> sudo chmod 600 /etc/systemd/system/my-server.service
+> ```
 
 ### 3. 상태 확인
 

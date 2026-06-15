@@ -4,7 +4,7 @@
 | :--- | :--- |
 | Project | my-server |
 | Version | 1.0.0-SNAPSHOT |
-| Status | Phase 2 Completed |
+| Status | Phase 3 Completed |
 
 <br>
 
@@ -97,6 +97,7 @@
 
 - **Phase 1** : 빠른 구현을 통한 기본 서버 구축
 - **Phase 2** : Layered Architecture, 예외 처리, 테스트, 보안/인증 적용
+- **Phase 3** : Security Hardening — 권한 검증, Rate Limiting, CSRF/XSS, 민감정보 외부화, 보안 테스트
 
 <br>
 
@@ -129,7 +130,11 @@ AWS RDS (MySQL)
 
 - Spring Security 기반 인증 시스템
 - BCrypt 비밀번호 암호화
-- 작성자 기반 게시글 권한 제어
+- 작성자 기반 게시글 권한 제어 (Service 레이어 `validateOwner()`)
+- Rate Limiting — IP별 로그인 시도 횟수 제한 (5회 / 15분 차단)
+- CSRF 전면 활성화 (H2 콘솔 경로만 예외)
+- 보안 헤더 — `X-Content-Type-Options`, `frameOptions: sameOrigin`, `Referrer-Policy`
+- 민감정보 외부화 — systemd `Environment=` 주입 (`.env` 파일 제거)
 - AWS Security Group 기반 네트워크 제한
 - HTTPS 통신 적용
 
@@ -172,3 +177,16 @@ User 1 ---- N Post
 
 - 로컬 개발 환경에서는 H2 파일 기반 DB 사용
 - 스키마 변경 테스트 용이성 확보
+
+<br>
+
+### 3.5. Test Strategy
+
+| 계층 | 테스트 유형 | 도구 |
+| :--- | :--- | :--- |
+| Service | 단위 테스트 | `@ExtendWith(MockitoExtension)` |
+| Controller | 보안 슬라이스 테스트 | `@WebMvcTest` + MockMvc |
+
+- Service 테스트 : Repository를 Mock 처리하여 비즈니스 로직만 검증
+- Controller 테스트 : HTTP 상태코드, 리다이렉트, 403 반환 등 보안 규칙 검증
+- `spring-security-test` — 요청 레벨 인증 주입 (`.with(user(...).roles(...))`)
