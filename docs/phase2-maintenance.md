@@ -269,4 +269,77 @@ thymeleaf-extras-springsecurity6
 
 ## Step 4. Infrastructure Maintenance
 
-> 진행 예정
+### 1. Log Management (Logback)
+
+#### 1.1. Configuration
+
+`src/main/resources/logback-spring.xml` 생성
+
+- **local** 프로필 : 콘솔 출력, 애플리케이션 로그 DEBUG 레벨
+- **prod** 프로필 : 파일 분리 저장 (콘솔 출력 없음)
+
+| 파일 | 보관 기간 |
+| :--- | :--- |
+| `logs/info.log` | 30일 |
+| `logs/warn.log` | 30일 |
+| `logs/error.log` | 90일 |
+
+매일 자정 롤링 — `logs/info.2025-06-14.log` 형식으로 날짜별 분리
+
+<br>
+
+### 2. CI/CD Automation (GitHub Actions)
+
+#### 2.1. Workflow
+
+`.github/workflows/deploy.yml` 생성
+
+`main` 브랜치 push 시 자동 실행
+
+```
+Checkout → JDK 21 설치 → Maven 빌드 → SCP 전송 → systemctl restart
+```
+
+#### 2.2. GitHub Secrets 등록
+
+| Secret | 값 |
+| :--- | :--- |
+| `EC2_HOST` | EC2 퍼블릭 IP 또는 도메인 |
+| `EC2_USER` | `ec2-user` |
+| `EC2_SSH_KEY` | `.pem` 파일 전체 내용 |
+
+<br>
+
+### 3. systemd 서비스 등록
+
+EC2 재부팅 시 자동 실행 + 비정상 종료 시 자동 재시작
+
+`/etc/systemd/system/my-server.service`
+
+```ini
+[Unit]
+Description=My Server Spring Boot Application
+After=network.target
+
+[Service]
+User=ec2-user
+WorkingDirectory=/home/ec2-user
+ExecStart=/usr/bin/java -jar /home/ec2-user/my-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable my-server
+sudo systemctl start my-server
+```
+
+> **WorkingDirectory 설정이 필요한 이유**  
+> systemd는 기본 작업 디렉토리가 `/` (루트)이므로, `./logs` 같은 상대경로가 `/logs`로 해석된다.  
+> `WorkingDirectory=/home/ec2-user` 로 고정해야 상대경로가 올바르게 동작한다.

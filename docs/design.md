@@ -4,7 +4,7 @@
 | :--- | :--- |
 | Project | my-server |
 | Version | 1.0.0-SNAPSHOT |
-| Status | Phase 2 - Step 3 Completed |
+| Status | Phase 2 Completed |
 
 <br>
 

@@ -14,6 +14,13 @@ public class GlobalExceptionHandler
         return "error/404";
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public String handleUnauthorizedException(UnauthorizedException ex, Model model)
+    {
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error/403";
+    }
+
     @ExceptionHandler(Exception.class)
     public String handleException(Exception ex, Model model)
     {

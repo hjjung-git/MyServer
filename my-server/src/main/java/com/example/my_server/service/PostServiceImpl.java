@@ -1,8 +1,10 @@
 package com.example.my_server.service;
 
 import com.example.my_server.domain.Post;
+import com.example.my_server.domain.Role;
 import com.example.my_server.domain.User;
 import com.example.my_server.exception.PostNotFoundException;
+import com.example.my_server.exception.UnauthorizedException;
 import com.example.my_server.repository.PostRepository;
 import com.example.my_server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,7 +72,7 @@ public class PostServiceImpl implements PostService
         { throw new RuntimeException("로그인 정보를 찾을 수 없습니다."); }
 
         User user = userRepository.findByLoginId(username)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습ㄴ디ㅏ."));
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         post.setUser(user);
         post.setUsername(user.getNickname());
@@ -107,18 +109,46 @@ public class PostServiceImpl implements PostService
         return savedFilename;
     }
 
+    // 현재 로그인한 사용자의 loginId 반환
+    private String getCurrentLoginId()
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof UserDetails)
+            return ((UserDetails) principal).getUsername();
+        else if (principal instanceof String)
+            return (String) principal;
+
+        throw new RuntimeException("로그인 정보를 찾을 수 없습니다.");
+    }
+
+    // 현재 로그인한 사용자가 해당 게시글의 작성자인지 검증
+    private void validateOwner(Post post)
+    {
+        String currentLoginId = getCurrentLoginId();
+        User currentUser = userRepository.findByLoginId(currentLoginId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        boolean isAdmin = currentUser.getRole() == Role.ADMIN;
+        boolean isOwner = post.getUser() != null &&
+                          post.getUser().getLoginId().equals(currentLoginId);
+
+        if (!isAdmin && !isOwner)
+            throw new UnauthorizedException("본인이 작성한 게시글만 수정/삭제할 수 있습니다.");
+    }
+
     // 포스트 수정하기
     @Override
     @Transactional
     public Post updatePost(Long id, Post updatedPost, MultipartFile file) throws IOException
     {
         Post existingPost = findById(id);
+        validateOwner(existingPost);
 
         existingPost.setTitle(updatedPost.getTitle());
-        existingPost.setUsername(updatedPost.getUsername());
         existingPost.setContent(updatedPost.getContent());
 
-        // 새 파일이 업로드 되었다면 기존 파일 삭제 후 저장
         if (file != null && !file.isEmpty())
         {
             String savedFilePath = saveFile(file);
@@ -133,6 +163,8 @@ public class PostServiceImpl implements PostService
     @Transactional
     public void delete(Long id)
     {
+        Post post = findById(id);
+        validateOwner(post);
         postRepository.deleteById(id);
     }
 }

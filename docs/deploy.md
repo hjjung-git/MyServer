@@ -191,7 +191,7 @@ sudo certbot renew --dry-run
 
 | 유형 | 포트 | 소스 |
 | :--- | :---: | :--- |
-| SSH | 22 | 내 IP |
+| SSH | 22 | 0.0.0.0/0 |
 | HTTP | 80 | 0.0.0.0/0 |
 | HTTPS | 443 | 0.0.0.0/0 |
 | MySQL/Aurora | 3306 | 내 IP + EC2 보안 그룹 |

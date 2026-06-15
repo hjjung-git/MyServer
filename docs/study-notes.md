@@ -489,3 +489,63 @@ sudo journalctl -u my-server -f   # 실시간 로그 확인
 | :--- | :---: | :---: |
 | nohup | ❌ | ❌ |
 | systemd | ✅ | ✅ |
+
+<br>
+
+---
+
+## Phase 3 — Security Hardening
+
+### Step 1. Service 레이어 권한 검증
+
+#### View 보안 vs Server 보안
+
+보안은 **서버(백엔드)에서 반드시 검증**해야 한다.  
+View(HTML)에서 버튼을 숨기는 것은 화면 처리일 뿐, 실제 보안이 아니다.
+
+```
+❌ 잘못된 구조
+사용자 A가 /post/delete/1 URL 직접 입력
+→ 서버가 아무 검증 없이 삭제 실행
+
+✅ 올바른 구조
+사용자 A가 /post/delete/1 URL 직접 입력
+→ 서버가 "A가 글 1의 작성자인가?" 검증
+→ 아니면 403 반환
+```
+
+#### 왜 Service 레이어에서 검증하는가?
+
+Controller는 요청을 받아서 Service로 넘기는 역할만 한다.  
+**비즈니스 규칙("작성자만 수정/삭제 가능")은 Service 레이어의 책임**이다.  
+Controller에서 검증하면 API 엔드포인트가 추가될 때마다 중복 검증 코드가 생긴다.
+
+#### 구현 패턴
+
+```java
+private void validateOwner(Post post) {
+    String currentLoginId = getCurrentLoginId();   // 현재 로그인한 사용자
+    boolean isAdmin = currentUser.getRole() == Role.ADMIN;
+    boolean isOwner = post.getUser().getLoginId().equals(currentLoginId);
+
+    if (!isAdmin && !isOwner)
+        throw new UnauthorizedException("권한이 없습니다.");
+}
+```
+
+- `ADMIN`은 모든 글을 수정/삭제 가능
+- `USER`는 본인 글만 가능
+- 권한 없으면 `UnauthorizedException` → `GlobalExceptionHandler` → 403 페이지
+
+#### Controller는 인터페이스에 의존해야 하는 이유
+
+```java
+// ❌ 구현체에 직접 의존
+private final PostServiceImpl postServiceImpl;
+
+// ✅ 인터페이스에 의존
+private final PostService postService;
+```
+
+구현체를 바꿔도 Controller 코드를 수정할 필요가 없다.  
+테스트 시 Mock 객체로 쉽게 교체할 수 있다.

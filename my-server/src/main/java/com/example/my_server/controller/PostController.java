@@ -1,6 +1,6 @@
 package com.example.my_server.controller;
 
-import com.example.my_server.service.PostServiceImpl;
+import com.example.my_server.service.PostService;
 import com.example.my_server.domain.Post;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -18,10 +18,10 @@ import java.io.IOException;
 @Controller
 public class PostController
 {
-    private final PostServiceImpl postServiceImpl;
+    private final PostService postService;
 
-    public PostController(PostServiceImpl postServiceImpl)
-    { this.postServiceImpl = postServiceImpl; }
+    public PostController(PostService postService)
+    { this.postService = postService; }
 
     @GetMapping("/")
     public String index(Model model)
@@ -33,7 +33,7 @@ public class PostController
                        @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable)
     {
         // 1. Service를 통해 모든 포스트 목록을 가져옴
-        Page<Post> postsPage = postServiceImpl.list(keyword, pageable);
+        Page<Post> postsPage = postService.list(keyword, pageable);
 
         // 2. 가져온 포스트 목록을 "posts"라는 이름으로 View에 전달
         model.addAttribute("posts", postsPage);
@@ -47,7 +47,7 @@ public class PostController
     public String detail(@PathVariable Long id, Model model)
     {
         // 1. Repository를 통해 ID에 해당하는 포스트 찾기
-        Post post = postServiceImpl.findById(id);
+        Post post = postService.findById(id);
 
         // 2. 조회된 Page 객체를 "post"라는 이름으로 HTML에 전달
         model.addAttribute("post", post);
@@ -68,7 +68,7 @@ public class PostController
             return "write-form";
         }
 
-        postServiceImpl.save(post, file);
+        postService.save(post, file);
         return "redirect:/main/list";
     }
 
@@ -85,7 +85,7 @@ public class PostController
     public String editForm(@PathVariable Long id, Model model)
     {
         // 1. Service를 통해 수정할 포스트를 찾음
-        Post post = postServiceImpl.findById(id);
+        Post post = postService.findById(id);
 
         // 2. 찾은 포스트를 "post"라는 이름으로 View에 전달 (폼에 기존 데이터가 채워짐)
         model.addAttribute("post", post);
@@ -104,7 +104,7 @@ public class PostController
         if (bindingResult.hasErrors())
         { return "edit"; }
 
-        postServiceImpl.updatePost(id, post, file);
+        postService.updatePost(id, post, file);
         return "redirect:/post/detail/" + id;
     }
 
@@ -112,7 +112,7 @@ public class PostController
     @GetMapping("/post/delete/{id}")
     public String deletePost(@PathVariable Long id)
     {
-        postServiceImpl.delete(id);
+        postService.delete(id);
         return "redirect:/main/list";
     }
 }

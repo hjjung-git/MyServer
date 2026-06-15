@@ -58,7 +58,7 @@
 
 | 단계 | 내용 | 상태 |
 | :--- | :--- | :---: |
-| Step 1 | Service 레이어 권한 검증 | ⬜ |
+| Step 1 | Service 레이어 권한 검증 | ✅ |
 | Step 2 | Rate Limiting · XSS / CSRF 방어 | ⬜ |
 | Step 3 | 민감정보 외부화 (환경변수 / Secrets Manager) | ⬜ |
 | Step 4 | 컨트롤러 보안 테스트 | ⬜ |
@@ -93,7 +93,7 @@ cd my-server
 mvn spring-boot:run
 ```
 
-접속 → http://localhost:8080
+접속 → http://localhost:8081
 
 운영 서버 배포 → [docs/deploy.md](docs/deploy.md)
 
@@ -110,3 +110,4 @@ mvn spring-boot:run
 | [docs/deploy.md](docs/deploy.md) | 배포 및 운영 절차 |
 | [docs/phase1-server-setup.md](docs/phase1-server-setup.md) | Phase 1 상세 기록 |
 | [docs/phase2-maintenance.md](docs/phase2-maintenance.md) | Phase 2 상세 기록 |
+| [docs/phase3-security.md](docs/phase3-security.md) | Phase 3 상세 기록 |
