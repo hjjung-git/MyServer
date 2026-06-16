@@ -888,3 +888,57 @@ private String activeMenuFor(PostType type)
 ```
 
 목록/상세/글쓰기/수정 등 여러 메서드에서 사이드바 활성 메뉴를 계산하는 로직이 똑같이 필요했다. 메서드로 추출해서 중복을 제거하고, `Post.type`이 있는 곳이면 어디서든 같은 기준으로 사이드바가 강조된다.
+
+<br>
+
+---
+
+## Phase 4 Step 3 — 매매일지 CRUD
+
+### 사용자가 입력한 값을 그대로 믿지 않는다
+
+처음에는 수익률(%)도 사용자가 직접 입력하는 필드였다. 하지만 진입가·청산가를 입력했는데 수익률을 잘못 계산해서 입력하면 데이터가 깨진다. 그래서 수익률 입력 필드를 폼에서 완전히 제거하고, 서버에서 진입가/청산가/포지션으로부터 자동 계산하도록 바꿨다.
+
+```java
+private void calculateProfitRate(Post post)
+{
+    if (post.getType() != PostType.TRADE_LOG
+            || post.getEntryPrice() == null
+            || post.getExitPrice() == null
+            || post.getEntryPrice().signum() == 0)
+    {
+        post.setProfitRate(null);
+        return;
+    }
+
+    BigDecimal rate = post.getExitPrice().subtract(post.getEntryPrice())
+            .divide(post.getEntryPrice(), 4, RoundingMode.HALF_UP)
+            .multiply(BigDecimal.valueOf(100))
+            .setScale(2, RoundingMode.HALF_UP);
+
+    if (post.getPosition() == TradePosition.SHORT)
+    { rate = rate.negate(); }
+
+    post.setProfitRate(rate);
+}
+```
+
+핵심은 **SHORT 포지션의 방향 반전**이다. SHORT는 가격이 떨어질 때 이익을 보는 포지션이므로, 단순히 `(청산가-진입가)/진입가`만 계산하면 SHORT에서는 부호가 거꾸로 나온다. 포지션에 따라 부호를 반전시켜야 실제 손익 방향과 일치한다.
+
+```
+LONG  : 1000 → 1100  =>  +10%  (가격 상승 = 수익)
+SHORT : 1000 → 900   =>  +10%  (가격 하락 = 수익, 부호 반전)
+```
+
+`BigDecimal.divide()`는 나누어떨어지지 않으면 `ArithmeticException`을 던지므로, 반드시 소수점 자릿수(`scale`)와 반올림 모드(`RoundingMode`)를 함께 지정해야 한다.
+
+### `BindingResult.rejectValue()`로 필드별 검증 에러 추가
+
+`@Valid`는 `Post` 엔티티에 붙은 `@NotBlank` 같은 어노테이션만 검증한다. "매매일지 타입일 때만 종목이 필수"처럼 조건에 따라 달라지는 규칙은 어노테이션으로 표현하기 어려워서, 컨트롤러에서 직접 검증하고 `BindingResult`에 에러를 추가했다.
+
+```java
+if (!StringUtils.hasText(post.getTicker()))
+    bindingResult.rejectValue("ticker", "required", "종목을 입력하세요.");
+```
+
+`rejectValue("필드명", "에러코드", "메시지")`로 추가한 에러는 `th:errors="*{ticker}"`로 폼에서 그대로 출력된다. `@Valid` 검증과 수동 검증을 같은 `BindingResult`에 누적시켜 한 번에 처리할 수 있다.

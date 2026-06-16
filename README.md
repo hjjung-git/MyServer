@@ -69,7 +69,7 @@
 | :--- | :--- | :---: |
 | Step 1 | 다크 테마 · 대시보드 레이아웃 전환 | ✅ |
 | Step 2 | 콘텐츠 타입 분리 (TRADE\_LOG / INSIGHT) + DB 스키마 | ✅ |
-| Step 3 | 매매일지 CRUD | ⬜ |
+| Step 3 | 매매일지 CRUD | ✅ |
 | Step 4 | 마크다운 에디터 (EasyMDE + Flexmark) | ⬜ |
 | Step 5 | 공개 / 비공개 설정 | ⬜ |
 | Step 6 | 대시보드 (통계 뷰) | ⬜ |

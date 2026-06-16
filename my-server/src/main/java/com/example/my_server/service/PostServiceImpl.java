@@ -3,6 +3,7 @@ package com.example.my_server.service;
 import com.example.my_server.domain.Post;
 import com.example.my_server.domain.PostType;
 import com.example.my_server.domain.Role;
+import com.example.my_server.domain.TradePosition;
 import com.example.my_server.domain.User;
 import com.example.my_server.exception.PostNotFoundException;
 import com.example.my_server.exception.UnauthorizedException;
@@ -20,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 @Service
@@ -83,7 +86,7 @@ public class PostServiceImpl implements PostService
 
         post.setUser(user);
         post.setUsername(user.getNickname());
-
+        calculateProfitRate(post);
 
         if (file != null && !file.isEmpty())
         {
@@ -92,6 +95,29 @@ public class PostServiceImpl implements PostService
         }
 
         return postRepository.save(post).getId();
+    }
+
+    // 매매일지 진입가/청산가/포지션을 바탕으로 수익률을 자동 계산 (사용자가 직접 입력하지 않음)
+    private void calculateProfitRate(Post post)
+    {
+        if (post.getType() != PostType.TRADE_LOG
+                || post.getEntryPrice() == null
+                || post.getExitPrice() == null
+                || post.getEntryPrice().signum() == 0)
+        {
+            post.setProfitRate(null);
+            return;
+        }
+
+        BigDecimal rate = post.getExitPrice().subtract(post.getEntryPrice())
+                .divide(post.getEntryPrice(), 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(2, RoundingMode.HALF_UP);
+
+        if (post.getPosition() == TradePosition.SHORT)
+        { rate = rate.negate(); }
+
+        post.setProfitRate(rate);
     }
 
     private String saveFile(MultipartFile file) throws IOException
@@ -160,8 +186,8 @@ public class PostServiceImpl implements PostService
         existingPost.setPosition(updatedPost.getPosition());
         existingPost.setEntryPrice(updatedPost.getEntryPrice());
         existingPost.setExitPrice(updatedPost.getExitPrice());
-        existingPost.setProfitRate(updatedPost.getProfitRate());
         existingPost.setExchange(updatedPost.getExchange());
+        calculateProfitRate(existingPost);
 
         if (file != null && !file.isEmpty())
         {

@@ -33,33 +33,37 @@
 
                 <div id="tradeFields" class="trade-fields-box mb-3" style="display: none;">
                     <div class="row g-2">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label for="ticker" class="form-label">종목</label>
                             <input type="text" th:field="*{ticker}" id="ticker" class="form-control dark-input" placeholder="BTC">
+                            <div th:if="${#fields.hasErrors('ticker')}" th:errors="*{ticker}" class="text-danger mt-1 small"></div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label for="position" class="form-label">포지션</label>
                             <select th:field="*{position}" id="position" class="form-select dark-input">
                                 <option value="">선택</option>
                                 <option value="LONG">LONG</option>
                                 <option value="SHORT">SHORT</option>
                             </select>
+                            <div th:if="${#fields.hasErrors('position')}" th:errors="*{position}" class="text-danger mt-1 small"></div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label for="exchange" class="form-label">거래소</label>
                             <input type="text" th:field="*{exchange}" id="exchange" class="form-control dark-input" placeholder="Upbit">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="profitRate" class="form-label">수익률(%)</label>
-                            <input type="number" step="0.01" th:field="*{profitRate}" id="profitRate" class="form-control dark-input" placeholder="5.2">
+                            <div th:if="${#fields.hasErrors('exchange')}" th:errors="*{exchange}" class="text-danger mt-1 small"></div>
                         </div>
                         <div class="col-md-6">
                             <label for="entryPrice" class="form-label">진입가</label>
                             <input type="number" step="0.01" th:field="*{entryPrice}" id="entryPrice" class="form-control dark-input">
+                            <div th:if="${#fields.hasErrors('entryPrice')}" th:errors="*{entryPrice}" class="text-danger mt-1 small"></div>
                         </div>
                         <div class="col-md-6">
                             <label for="exitPrice" class="form-label">청산가</label>
                             <input type="number" step="0.01" th:field="*{exitPrice}" id="exitPrice" class="form-control dark-input">
+                            <div th:if="${#fields.hasErrors('exitPrice')}" th:errors="*{exitPrice}" class="text-danger mt-1 small"></div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-text" style="color: var(--text-tertiary);">수익률은 진입가·청산가·포지션을 기준으로 저장 시 자동 계산됩니다.</div>
                         </div>
                     </div>
                 </div>

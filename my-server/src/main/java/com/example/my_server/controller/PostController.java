@@ -4,6 +4,7 @@ import com.example.my_server.service.PostService;
 import com.example.my_server.domain.Post;
 import com.example.my_server.domain.PostType;
 import jakarta.validation.Valid;
+import org.springframework.util.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -67,6 +68,23 @@ public class PostController
         return type == PostType.TRADE_LOG ? "tradelog" : "insight";
     }
 
+    // 매매일지 타입일 때 필수 입력값 검증
+    private void validateTradeFields(Post post, BindingResult bindingResult)
+    {
+        if (post.getType() != PostType.TRADE_LOG) return;
+
+        if (!StringUtils.hasText(post.getTicker()))
+            bindingResult.rejectValue("ticker", "required", "종목을 입력하세요.");
+        if (post.getPosition() == null)
+            bindingResult.rejectValue("position", "required", "포지션을 선택하세요.");
+        if (post.getEntryPrice() == null)
+            bindingResult.rejectValue("entryPrice", "required", "진입가를 입력하세요.");
+        if (post.getExitPrice() == null)
+            bindingResult.rejectValue("exitPrice", "required", "청산가를 입력하세요.");
+        if (!StringUtils.hasText(post.getExchange()))
+            bindingResult.rejectValue("exchange", "required", "거래소를 입력하세요.");
+    }
+
     // 쓰기 기능
     @PostMapping("/post/write")
     public String writePost(@Valid Post post,
@@ -74,6 +92,8 @@ public class PostController
                             @RequestParam(value = "file", required = false) MultipartFile file,
                             Model model) throws IOException
     {
+        validateTradeFields(post, bindingResult);
+
         if (bindingResult.hasErrors())
         {
             System.out.println("검증 에러 발생 : " + bindingResult.getAllErrors());
@@ -117,6 +137,8 @@ public class PostController
                          @RequestParam("file") MultipartFile file,
                          Model model) throws IOException
     {
+        validateTradeFields(post, bindingResult);
+
         if (bindingResult.hasErrors())
         {
             model.addAttribute("activeMenu", activeMenuFor(post.getType()));
