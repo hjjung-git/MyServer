@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 @Entity
@@ -40,6 +41,21 @@ public class Post
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PostType type = PostType.INSIGHT;
+
+    // --- 매매일지 전용 필드 (INSIGHT 타입일 때는 null) ---
+    private String ticker;
+
+    @Enumerated(EnumType.STRING)
+    private TradePosition position;
+
+    private BigDecimal entryPrice;
+    private BigDecimal exitPrice;
+    private BigDecimal profitRate;
+    private String exchange;
+
     // --- 생성자 ---
     public Post() {}
 
@@ -63,6 +79,20 @@ public class Post
     public void setFilePath(String filePath) { this.filePath = filePath; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+    public PostType getType() { return type; }
+    public void setType(PostType type) { this.type = type; }
+    public String getTicker() { return ticker; }
+    public void setTicker(String ticker) { this.ticker = ticker; }
+    public TradePosition getPosition() { return position; }
+    public void setPosition(TradePosition position) { this.position = position; }
+    public BigDecimal getEntryPrice() { return entryPrice; }
+    public void setEntryPrice(BigDecimal entryPrice) { this.entryPrice = entryPrice; }
+    public BigDecimal getExitPrice() { return exitPrice; }
+    public void setExitPrice(BigDecimal exitPrice) { this.exitPrice = exitPrice; }
+    public BigDecimal getProfitRate() { return profitRate; }
+    public void setProfitRate(BigDecimal profitRate) { this.profitRate = profitRate; }
+    public String getExchange() { return exchange; }
+    public void setExchange(String exchange) { this.exchange = exchange; }
 
     // 이 엔티티가 DB에 처음 저장되기 직전(pre-persist) 실행
     @PrePersist

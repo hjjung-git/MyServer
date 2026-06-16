@@ -746,3 +746,145 @@ doThrow(new UnauthorizedException("권한 없음"))
 @ExceptionHandler(UnauthorizedException.class)
 public String handleUnauthorizedException(...) { return "error/403"; }
 ```
+
+<br>
+
+---
+
+## Phase 4 Step 1 — 다크 테마 · 대시보드 레이아웃 전환
+
+### Thymeleaf Fragment로 레이아웃 재사용
+
+```html
+<!-- fragments/sidebar.html -->
+<div th:fragment="sidebar(activeMenu)" class="app-sidebar"> ... </div>
+
+<!-- list.html -->
+<div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
+```
+
+`th:fragment`로 정의한 조각을 `th:replace`로 다른 템플릿에 삽입한다. 파라미터(`activeMenu`)를 전달할 수 있어 페이지마다 어떤 메뉴를 활성 상태로 표시할지 제어 가능하다. 사이드바를 페이지마다 복사하지 않고 한 곳에서 관리한다.
+
+### 정적 리소스도 Spring Security 인가 대상이다
+
+다크 테마 CSS를 추가했는데 화면이 흰 배경으로 그대로 보이는 문제가 발생했다.
+
+**원인** : `SecurityConfig`의 `permitAll()` 목록에 `/css/**`가 빠져 있었음.
+
+```java
+.requestMatchers("/", "/main/list/**", "/user/**", "/uploads/**", "/h2-console/**")
+        .permitAll()
+.anyRequest().authenticated()   // /css/** 도 여기 걸림
+```
+
+비로그인 상태로 `/css/dark-theme.css`를 요청하면 Spring Security가 이를 인증이 필요한 리소스로 판단해 `/user/login`으로 302 리다이렉트한다. 브라우저는 CSS 대신 로그인 페이지 HTML을 받게 되어 스타일이 전혀 적용되지 않는다.
+
+**해결** : CSS/JS 등 정적 리소스 경로를 `permitAll()`에 명시적으로 추가.
+
+```java
+.requestMatchers("/", "/main/list/**", "/user/**", "/uploads/**",
+        "/h2-console/**", "/css/**", "/js/**").permitAll()
+```
+
+HTML 페이지가 정상 로드되어도 그 안에서 참조하는 CSS/JS/이미지 등 모든 리소스는 별도의 HTTP 요청이며, 각각 Security 인가 규칙을 통과해야 한다는 점을 기억해야 한다.
+
+### CSS Grid `auto-fit`으로 반응형 카드 레이아웃
+
+```css
+.kpi-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+```
+
+고정 컬럼 수(`repeat(4, ...)`) 대신 `auto-fit`을 쓰면 컨테이너 폭에 따라 컬럼 수가 자동으로 줄어든다. 향후 우측에 분할 패널이 열려 메인 영역이 좁아져도 별도의 JS 없이 카드가 자연스럽게 줄바꿈된다.
+
+<br>
+
+---
+
+## Phase 4 Step 2 — 콘텐츠 타입 분리 (TRADE_LOG / INSIGHT)
+
+### 단일 테이블 + Enum 컬럼 전략
+
+매매일지와 인사이트를 별도 테이블로 나누지 않고 `Post` 테이블 하나에 `type` 컬럼(Enum)으로 구분했다.
+
+```java
+@Enumerated(EnumType.STRING)
+private PostType type = PostType.INSIGHT;
+
+private String ticker;          // TRADE_LOG일 때만 값이 채워짐
+private TradePosition position;
+private BigDecimal entryPrice;
+```
+
+테이블을 분리했다면 목록 조회 시 두 테이블을 UNION 해야 하고, 댓글·권한·공개설정 같은 공통 기능을 양쪽에 중복 구현해야 한다. 단일 테이블 + 타입 컬럼은 공통 로직을 그대로 재사용하면서 타입별 전용 필드만 nullable로 추가하면 된다. 데이터가 매우 커지거나 필드 구조가 완전히 달라지는 시점이 오면 분리를 재검토한다.
+
+### Spring Data JPA의 And/Or 우선순위
+
+```java
+Page<Post> findByTypeAndTitleContainingOrTypeAndContentContaining(
+        PostType type1, String title, PostType type2, String content, Pageable pageable);
+```
+
+메서드 이름만 보면 `Type AND Title OR Type AND Content`인데, Spring Data JPA는 `And`가 `Or`보다 결합력이 강하다고 해석한다. 즉 `(Type AND Title) OR (Type AND Content)`로 파싱되어, "해당 타입이면서 제목 또는 내용에 키워드가 포함된 글"이라는 의도한 쿼리가 정확히 만들어진다. 파라미터로 `type`을 두 번 전달해야 하는 이유도 이 구조 때문이다.
+
+### `@RequestParam`의 Enum 자동 변환
+
+```java
+@RequestParam(value = "type", required = false) PostType type
+```
+
+Spring MVC는 쿼리 파라미터 문자열(`?type=TRADE_LOG`)을 `Enum.valueOf()`로 자동 변환해 컨트롤러 파라미터에 바인딩한다. 별도의 변환 코드 없이 `String` 대신 enum 타입을 그대로 받을 수 있다. 단, 존재하지 않는 값(`?type=BOGUS`)을 넘기면 변환 실패로 예외가 발생한다 — 사용자 입력을 직접 받는 파라미터라면 잘못된 값에 대한 처리(400 응답 등)를 별도로 고려해야 한다.
+
+### Thymeleaf 조건부 클래스 적용
+
+```html
+<a th:href="@{/main/list(type='TRADE_LOG')}"
+   class="filter-chip"
+   th:classappend="${type != null and type.name() == 'TRADE_LOG'} ? ' active' : ''">매매일지</a>
+```
+
+`th:classappend`는 기존 `class` 속성 값에 조건부로 문자열을 덧붙인다. 현재 선택된 필터를 시각적으로 강조하는 데 쓰였다.
+
+<br>
+
+---
+
+## Phase 4 — 전체 화면 다크 테마 통일 + 대시보드 차트 틀
+
+### 화면 간 일관성을 CSS 클래스로 관리
+
+로그인, 회원가입, 글쓰기, 수정, 상세, 에러 페이지(403/404/500)가 모두 제각각 Bootstrap 기본 스타일을 쓰고 있었다. 페이지마다 인라인 스타일을 새로 작성하는 대신 `dark-theme.css`에 의미 단위 클래스를 정의하고 재사용했다.
+
+```css
+.auth-card { /* 로그인/회원가입 카드 */ }
+.error-shell { /* 403/404/500 공통 레이아웃 */ }
+.form-page-card { /* 글쓰기/수정 폼 카드 */ }
+.detail-card, .detail-stat { /* 상세 페이지 */ }
+```
+
+이렇게 하면 추후 색상 하나를 바꿔도 `:root`의 CSS 변수만 수정하면 전체 화면에 일괄 반영된다.
+
+### 비어 있는 영역도 "틀"부터 만드는 이유
+
+대시보드의 메인 차트·워치리스트·미니 차트 그리드는 아직 실제 시세 데이터가 없다. 그렇다고 해당 영역을 비워두지 않고, 정적 SVG와 더미 텍스트("데이터 연동 예정")로 레이아웃 틀을 먼저 만들었다.
+
+```html
+<div th:if="${type == null}" class="chart-panel">
+    ...
+</div>
+```
+
+`th:if="${type == null}"`로 감싸서 대시보드(전체) 화면에서만 보이고, "매매일지"/"인사이트" 필터 화면에서는 숨겨지도록 분리했다. 나중에 실제 통계 데이터를 연동할 때(Phase 4 Step 6) 이 틀 안의 SVG `points`만 실제 값으로 교체하면 되므로, 화면 구조와 데이터 연동을 분리해서 작업할 수 있다.
+
+### Controller에서 activeMenu를 일관되게 계산
+
+```java
+private String activeMenuFor(PostType type)
+{
+    if (type == null) return "dashboard";
+    return type == PostType.TRADE_LOG ? "tradelog" : "insight";
+}
+```
+
+목록/상세/글쓰기/수정 등 여러 메서드에서 사이드바 활성 메뉴를 계산하는 로직이 똑같이 필요했다. 메서드로 추출해서 중복을 제거하고, `Post.type`이 있는 곳이면 어디서든 같은 기준으로 사이드바가 강조된다.

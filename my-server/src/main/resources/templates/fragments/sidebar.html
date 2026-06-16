@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="sidebar(activeMenu)" class="app-sidebar">
+    <a href="/main/list" class="logo">M</a>
+
+    <a href="/main/list"
+       class="nav-icon"
+       th:classappend="${activeMenu == 'dashboard'} ? ' active' : ''"
+       title="대시보드">
+        <i class="bi bi-speedometer2"></i>
+    </a>
+
+    <a th:href="@{/main/list(type='TRADE_LOG')}"
+       class="nav-icon"
+       th:classappend="${activeMenu == 'tradelog'} ? ' active' : ''"
+       title="매매일지">
+        <i class="bi bi-graph-up-arrow"></i>
+    </a>
+
+    <a th:href="@{/main/list(type='INSIGHT')}"
+       class="nav-icon"
+       th:classappend="${activeMenu == 'insight'} ? ' active' : ''"
+       title="인사이트">
+        <i class="bi bi-lightbulb"></i>
+    </a>
+
+    <div class="nav-spacer"></div>
+
+    <a href="#" class="nav-icon" title="설정">
+        <i class="bi bi-gear"></i>
+    </a>
+</div>
+</body>
+</html>

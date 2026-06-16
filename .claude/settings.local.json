@@ -8,7 +8,30 @@
       "Bash(xargs -I{} jar tf {})",
       "Bash(jar tf *)",
       "Bash(find ~/.m2/repository/org/springframework/boot -name \"*webmvc*test*\" -o -name \"*web*mvc*test*\" 2>/dev/null | head -10)",
-      "Bash(grep -v \"/$\")"
+      "Bash(grep -v \"/$\")",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget",
+      "Bash(mvn -q spring-boot:run -Dspring-boot.run.profiles=local)",
+      "Bash(echo \"started pid $!\")",
+      "Read(//private/tmp/**)",
+      "Bash(pkill -f \"spring-boot:run\")",
+      "Bash(lsof -ti:8081)",
+      "Bash(xargs -r kill)",
+      "Bash(mvn -q compile)",
+      "Bash(mvn -q spring-boot:run -Dspring-boot.run.profiles=local > /tmp/myserver4.log 2>&1 & *)",
+      "Bash(curl -s \"http://localhost:8081/main/list?type=BOGUS\")",
+      "Bash(curl -s -D - -o /dev/null \"http://localhost:8081/main/list?type=BOGUS\")",
+      "Bash(pkill -9 -f \"MyServerApplication\")",
+      "Bash(pkill -9 -f \"spring-boot:run\")",
+      "Bash(echo \"cleared: $?\")",
+      "Bash(curl -s \"http://localhost:8081/main/list?type=TRADE_LOG\")",
+      "Bash(curl -s \"http://localhost:8081/main/list?type=INSIGHT\")",
+      "Bash(curl -s -c /tmp/cookies.txt http://localhost:8081/user/login -o /dev/null)",
+      "Bash(curl -s -b /tmp/cookies.txt \"http://localhost:8081/post/write/form\")",
+      "Bash(curl -s -c /tmp/cookies.txt http://localhost:8081/user/login)",
+      "Bash(curl -s -b /tmp/cookies.txt \"http://localhost:8081/post/write/form\" -o /tmp/writeform.html -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s \"http://localhost:8081/post/detail/1\")",
+      "Bash(curl -s -b /tmp/cookies.txt \"http://localhost:8081/post/detail/1\" -o /tmp/detail1.html -w \"%{http_code}\\\\n\")"
     ]
   }
 }

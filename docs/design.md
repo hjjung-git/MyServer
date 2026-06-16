@@ -98,6 +98,7 @@
 - **Phase 1** : 빠른 구현을 통한 기본 서버 구축
 - **Phase 2** : Layered Architecture, 예외 처리, 테스트, 보안/인증 적용
 - **Phase 3** : Security Hardening — 권한 검증, Rate Limiting, CSRF/XSS, 민감정보 외부화, 보안 테스트
+- **Phase 4** : Service Transformation — 암호화폐 매매일지 플랫폼으로 전환 (단계적 진행)
 
 <br>
 

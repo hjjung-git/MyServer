@@ -1,6 +1,7 @@
 package com.example.my_server.service;
 
 import com.example.my_server.domain.Post;
+import com.example.my_server.domain.PostType;
 import com.example.my_server.domain.Role;
 import com.example.my_server.domain.User;
 import com.example.my_server.exception.PostNotFoundException;
@@ -39,12 +40,18 @@ public class PostServiceImpl implements PostService
     }
 
     @Override
-    public Page<Post> list(String keyword, Pageable pageable) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return postRepository.findAll(pageable);
+    public Page<Post> list(String keyword, PostType type, Pageable pageable) {
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+
+        if (type == null) {
+            return hasKeyword
+                    ? postRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable)
+                    : postRepository.findAll(pageable);
         }
 
-        return postRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+        return hasKeyword
+                ? postRepository.findByTypeAndTitleContainingOrTypeAndContentContaining(type, keyword, type, keyword, pageable)
+                : postRepository.findByType(type, pageable);
     }
 
     // ID로 포스트 찾기
@@ -148,6 +155,13 @@ public class PostServiceImpl implements PostService
 
         existingPost.setTitle(updatedPost.getTitle());
         existingPost.setContent(updatedPost.getContent());
+        existingPost.setType(updatedPost.getType());
+        existingPost.setTicker(updatedPost.getTicker());
+        existingPost.setPosition(updatedPost.getPosition());
+        existingPost.setEntryPrice(updatedPost.getEntryPrice());
+        existingPost.setExitPrice(updatedPost.getExitPrice());
+        existingPost.setProfitRate(updatedPost.getProfitRate());
+        existingPost.setExchange(updatedPost.getExchange());
 
         if (file != null && !file.isEmpty())
         {
