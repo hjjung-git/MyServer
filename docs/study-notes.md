@@ -975,3 +975,76 @@ GET /panel/post/{id}             →  fragments/panel-detail :: detail
 ```
 
 `position: fixed/absolute` 없이 flex 흐름 안에서 너비가 늘어나면 `app-main`이 자동으로 압축된다. `overflow: hidden`으로 `width:0` 상태에서 내부 콘텐츠를 숨기고, `transition`으로 부드러운 슬라이드 효과를 낸다.
+
+---
+
+## Phase 4-C — 뉴스 내부 상세보기 + AI 한국어 요약
+
+### 외부 링크 대신 내부 패널 탐색
+
+뉴스 카드를 `<a href="..." target="_blank">` 대신 `data-news-id` 속성을 가진 `<div>`로 변경하고, 이벤트 위임으로 `loadNewsDetail(id)`를 호출한다. 패널 내 페이지 전환이므로 브라우저 탭이 열리지 않고 패널 body만 교체된다.
+
+```html
+<!-- 변경 전 -->
+<a th:href="${article.url}" target="_blank">...</a>
+
+<!-- 변경 후 -->
+<div th:attr="data-news-id=${article.id}" style="cursor:pointer;">...</div>
+```
+
+### Anthropic Claude API 연동 (RestClient)
+
+`ClaudeClient` 서비스가 RSS 수집 직후 각 기사의 제목+요약을 Claude Haiku에 보내 한국어 두괄식 요약을 생성한다.
+
+- **Why RestClient?** Spring 6+에서 `RestTemplate`을 대체하는 동기 HTTP 클라이언트. `WebClient`보다 코드가 간결하고 reactive 의존성이 없다.
+- **Graceful degradation:** `@Value("${anthropic.api.key:}")` — 환경변수 미설정 시 빈 문자열이 주입되어 API 호출을 건너뛴다. 서버는 정상 동작하고 `koreanSummary`는 null로 저장된다.
+- **두괄식:** 가장 중요한 결론을 먼저 서술하는 글쓰기 방식. 프롬프트에 명시하여 AI 출력 형식을 유도한다.
+
+### 뉴스 상세 화면 구성
+
+```
+[AI 한국어 요약] ← teal 좌측 보더 카드, 두괄식
+[원문 영어 요약]
+[원문 보기 버튼] ← 외부 링크 (새 탭)
+```
+
+`koreanSummary`가 null이면 AI 요약 카드를 렌더링하지 않아 미번역 기사도 깔끔하게 표시된다.
+
+---
+
+## Phase 4-D — 번역 비동기 분리 + H2 파일 DB
+
+### 동기 처리의 문제점
+
+RSS 수집 루프 안에서 번역 API를 직접 호출하면 기사 수 × 딜레이만큼 서버 시작이 지연된다. 특히 in-memory DB는 재시작 시 데이터가 초기화되므로 매번 전체 번역을 반복하게 된다.
+
+### 해결: 스케줄러 분리
+
+```
+fetchAllFeeds()       — 5초 후 실행, 10분마다 반복 → 저장만 (빠름)
+translatePending()    — 15초 후 실행, 1분마다 반복 → 미번역 5건씩 처리
+```
+
+- RSS 수집이 즉시 완료되어 서버 시작 직후 뉴스 목록 사용 가능
+- 번역은 백그라운드에서 점진적으로 채워짐
+- 번역 실패 시 `koreanSummary = ""`(빈 문자열)로 마킹 → 무한 재시도 방지
+
+### H2 파일 DB
+
+```properties
+# in-memory (재시작 시 초기화)
+spring.datasource.url=jdbc:h2:mem:testdb
+
+# 파일 (재시작 후에도 데이터 유지)
+spring.datasource.url=jdbc:h2:file:./data/testdb
+```
+
+파일 DB로 전환하면 이미 번역된 기사는 `existsByUrl()` 체크로 건너뛰어 재번역이 발생하지 않는다. 스키마 변경 시 `data/` 디렉토리를 삭제하고 재시작하면 된다.
+
+### Groq API (무료 대체제)
+
+Anthropic API 크레딧 부족, Gemini 무료 할당량 문제 대안으로 채택.
+- 완전 무료, 신용카드 불필요
+- OpenAI 호환 엔드포인트 (`/openai/v1/chat/completions`)
+- 모델: `llama-3.1-8b-instant`, 분당 30회 제한
+- API 키: `gsk_...` 형태 (console.groq.com 발급)

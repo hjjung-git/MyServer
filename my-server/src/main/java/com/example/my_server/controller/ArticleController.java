@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
@@ -22,5 +23,11 @@ public class ArticleController {
         model.addAttribute("articles",
             articleRepository.findAllByOrderByPublishedAtDesc(PageRequest.of(page, 20)));
         return "fragments/panel-news :: news";
+    }
+
+    @GetMapping("/panel/news/{id}")
+    public String panelNewsDetail(@PathVariable Long id, Model model) {
+        articleRepository.findById(id).ifPresent(a -> model.addAttribute("article", a));
+        return "fragments/panel-news-detail :: detail";
     }
 }

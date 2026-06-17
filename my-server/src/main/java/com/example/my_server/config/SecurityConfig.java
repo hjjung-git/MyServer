@@ -35,6 +35,7 @@ public class SecurityConfig
                 // 접근 권한
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/main/list/**", "/panel/**", "/api/**", "/user/**", "/uploads/**", "/h2-console/**", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/portfolio/**").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/post/delete/**").hasAnyRole("ADMIN", "USER")
                         .anyRequest().authenticated()

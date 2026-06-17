@@ -16,10 +16,18 @@
 
     <a href="#"
        class="nav-icon"
-       th:classappend="${activeMenu == 'tradelog'} ? ' active' : ''"
-       title="매매일지"
-       onclick="openPanel('TRADE_LOG'); return false;">
-        <i class="bi bi-graph-up-arrow"></i>
+       th:classappend="${activeMenu == 'news'} ? ' active' : ''"
+       title="뉴스"
+       onclick="openNewsPanel(); return false;">
+        <i class="bi bi-newspaper"></i>
+    </a>
+
+    <a href="#"
+       class="nav-icon"
+       th:classappend="${activeMenu == 'portfolio'} ? ' active' : ''"
+       title="포트폴리오"
+       onclick="openPortfolioPanel(); return false;">
+        <i class="bi bi-pie-chart"></i>
     </a>
 
     <a href="#"
@@ -32,10 +40,10 @@
 
     <a href="#"
        class="nav-icon"
-       th:classappend="${activeMenu == 'news'} ? ' active' : ''"
-       title="뉴스"
-       onclick="openNewsPanel(); return false;">
-        <i class="bi bi-newspaper"></i>
+       th:classappend="${activeMenu == 'tradelog'} ? ' active' : ''"
+       title="매매일지"
+       onclick="openPanel('TRADE_LOG'); return false;">
+        <i class="bi bi-graph-up-arrow"></i>
     </a>
 
     <div class="nav-spacer"></div>

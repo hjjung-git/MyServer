@@ -118,7 +118,7 @@
         </div>
 
         <!-- 바로가기 카드 -->
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:28px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:12px; margin-bottom:28px;">
             <div class="content-card shortcut-card" onclick="openPanel('TRADE_LOG')" style="cursor:pointer;">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <i class="bi bi-graph-up-arrow" style="font-size:22px; color:var(--accent-teal);"></i>
@@ -134,6 +134,15 @@
                     <div>
                         <div style="font-size:13px; font-weight:500; color:var(--text-primary);">인사이트</div>
                         <div style="font-size:11px; color:var(--text-tertiary);" th:text="${insightCount} + '개의 기록'">0개의 기록</div>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card shortcut-card" onclick="openPortfolioPanel()" style="cursor:pointer;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="bi bi-pie-chart" style="font-size:22px; color:var(--accent-purple);"></i>
+                    <div>
+                        <div style="font-size:13px; font-weight:500; color:var(--text-primary);">포트폴리오</div>
+                        <div style="font-size:11px; color:var(--text-tertiary);">보유 현황 관리</div>
                     </div>
                 </div>
             </div>
@@ -209,6 +218,27 @@ function loadNews(page) {
     });
 }
 
+function openPortfolioPanel() {
+    currentPanelType = 'PORTFOLIO';
+    document.getElementById('panel-title').textContent = '포트폴리오';
+    document.getElementById('app-panel').classList.add('open');
+    loadPortfolio();
+}
+
+function loadPortfolio() {
+    fetch('/panel/portfolio').then(r => r.text()).then(html => {
+        document.getElementById('panel-body').innerHTML = html;
+    });
+}
+
+function loadNewsDetail(id) {
+    document.getElementById('panel-title').textContent = '뉴스';
+    document.getElementById('app-panel').classList.add('open');
+    fetch('/panel/news/' + id).then(r => r.text()).then(html => {
+        document.getElementById('panel-body').innerHTML = html;
+    });
+}
+
 document.addEventListener('click', function(e) {
     var postCard = e.target.closest('[data-panel-post]');
     if (postCard) { e.preventDefault(); loadPost(postCard.dataset.panelPost); return; }
@@ -226,6 +256,12 @@ document.addEventListener('click', function(e) {
 
     var newsPage = e.target.closest('[data-panel-news]');
     if (newsPage) { e.preventDefault(); loadNews(newsPage.dataset.panelNews); return; }
+
+    var newsCard = e.target.closest('[data-news-id]');
+    if (newsCard) { e.preventDefault(); loadNewsDetail(newsCard.dataset.newsId); return; }
+
+    var newsBack = e.target.closest('[data-panel-back-news]');
+    if (newsBack) { e.preventDefault(); loadNews(0); return; }
 });
 
 // ─── 업비트 실시간 시세 ──────────────────────────────────

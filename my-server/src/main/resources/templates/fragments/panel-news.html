@@ -8,14 +8,14 @@
         뉴스를 수집 중입니다.<br>잠시 후 다시 확인해주세요.
     </div>
 
-    <div th:each="article : ${articles}" class="news-card">
+    <div th:each="article : ${articles}" class="news-card" style="cursor:pointer;"
+         th:attr="data-news-id=${article.id}">
         <div class="news-source-row">
             <span class="news-source-badge" th:text="${article.source}">CoinTelegraph</span>
             <span class="news-time"
                   th:text="${#temporals.format(article.publishedAt, 'MM/dd HH:mm', 'Asia/Seoul')}">06/17 12:00</span>
         </div>
-        <a th:href="${article.url}" target="_blank" rel="noopener" class="news-title"
-           th:text="${article.title}">제목</a>
+        <div class="news-title" th:text="${article.title}">제목</div>
         <p th:if="${article.summary != null}" class="news-summary" th:text="${article.summary}"></p>
     </div>
 

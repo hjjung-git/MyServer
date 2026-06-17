@@ -43,7 +43,17 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:8081/panel/board?type=INSIGHT\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/post/write/form)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/panel/news)",
-      "Bash(curl -s \"http://localhost:8081/api/ticker\")"
+      "Bash(curl -s \"http://localhost:8081/api/ticker\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/panel/portfolio)",
+      "Bash(xargs ls)",
+      "Bash(mvn compile *)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(curl -s http://localhost:8081/panel/news/1)",
+      "Bash(python3 -c \"import sys; print\\(sys.stdin.read\\(\\)\\)\")",
+      "Bash(grep -n \"ANTHROPIC_API_KEY\" ~/.zshrc 2>/dev/null || echo \"없음\")",
+      "Bash(echo \"\")",
+      "Bash(echo \"export ANTHROPIC_API_KEY=여기에키붙여넣기\")",
+      "Bash(nano ~/.zshrc)"
     ]
   }
 }

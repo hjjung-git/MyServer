@@ -21,6 +21,9 @@ public class Article {
     @Column(length = 500)
     private String summary;
 
+    @Column(length = 2000)
+    private String koreanSummary;
+
     private LocalDateTime publishedAt;
     private LocalDateTime fetchedAt;
 
@@ -29,6 +32,7 @@ public class Article {
     public String getUrl() { return url; }
     public String getSource() { return source; }
     public String getSummary() { return summary; }
+    public String getKoreanSummary() { return koreanSummary; }
     public LocalDateTime getPublishedAt() { return publishedAt; }
     public LocalDateTime getFetchedAt() { return fetchedAt; }
 
@@ -36,6 +40,7 @@ public class Article {
     public void setUrl(String url) { this.url = url; }
     public void setSource(String source) { this.source = source; }
     public void setSummary(String summary) { this.summary = summary; }
+    public void setKoreanSummary(String koreanSummary) { this.koreanSummary = koreanSummary; }
     public void setPublishedAt(LocalDateTime publishedAt) { this.publishedAt = publishedAt; }
     public void setFetchedAt(LocalDateTime fetchedAt) { this.fetchedAt = fetchedAt; }
 }
