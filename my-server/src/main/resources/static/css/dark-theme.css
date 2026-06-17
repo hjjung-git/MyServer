@@ -561,6 +561,71 @@ body.dark-theme {
     color: var(--text-secondary);
 }
 
+/* 뉴스 카드 */
+.news-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.news-card {
+    background: var(--bg-surface);
+    border-radius: 10px;
+    padding: 14px 16px;
+}
+
+.news-source-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.news-source-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent-teal);
+    background: var(--accent-teal-bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.news-time {
+    font-size: 10px;
+    color: var(--text-disabled);
+    flex-shrink: 0;
+}
+
+.news-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-decoration: none;
+    line-height: 1.45;
+    margin-bottom: 6px;
+}
+
+.news-title:hover {
+    color: var(--accent-teal);
+}
+
+.news-summary {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 /* 폼 페이지 (글쓰기/수정) */
 .form-page-card {
     background: var(--bg-surface);

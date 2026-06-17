@@ -41,7 +41,9 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:8081/panel/board?type=TRADE_LOG\")",
       "Bash(xargs kill -9)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:8081/panel/board?type=INSIGHT\")",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/post/write/form)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/post/write/form)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/panel/news)",
+      "Bash(curl -s \"http://localhost:8081/api/ticker\")"
     ]
   }
 }
