@@ -6,6 +6,7 @@ import com.example.my_server.domain.PostType;
 import jakarta.validation.Valid;
 import org.springframework.util.StringUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -30,22 +31,30 @@ public class PostController
     { return "redirect:/main/list"; }
 
     @GetMapping("/main/list")
-    public String list(Model model,
-                       @RequestParam(value = "keyword", required = false) String keyword,
-                       @RequestParam(value = "type", required = false) PostType type,
-                       @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable)
+    public String list(Model model)
     {
-        // 1. Service를 통해 타입에 맞는 포스트 목록을 가져옴
-        Page<Post> postsPage = postService.list(keyword, type, pageable);
-
-        // 2. 가져온 포스트 목록을 View에 전달
-        model.addAttribute("posts", postsPage);
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("type", type);
-        model.addAttribute("activeMenu", activeMenuFor(type));
-
-        // 3. list.html을 렌더링
+        model.addAllAttributes(postService.dashboardStats());
         return "list";
+    }
+
+    @GetMapping("/panel/board")
+    public String panelBoard(@RequestParam(required = false) PostType type,
+                             @RequestParam(value = "keyword", required = false) String keyword,
+                             @RequestParam(value = "page", defaultValue = "0") int page,
+                             Model model)
+    {
+        Pageable pageable = PageRequest.of(page, 15, Sort.by(Sort.Direction.DESC, "id"));
+        model.addAttribute("posts", postService.list(keyword, type, pageable));
+        model.addAttribute("type", type != null ? type.name() : "");
+        model.addAttribute("keyword", keyword);
+        return "fragments/panel-board :: board";
+    }
+
+    @GetMapping("/panel/post/{id}")
+    public String panelPost(@PathVariable Long id, Model model)
+    {
+        model.addAttribute("post", postService.findById(id));
+        return "fragments/panel-detail :: detail";
     }
 
     @GetMapping("/post/detail/{id}")

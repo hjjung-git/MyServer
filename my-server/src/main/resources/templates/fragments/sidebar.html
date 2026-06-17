@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-<div th:fragment="sidebar(activeMenu)" class="app-sidebar">
+<th:block th:fragment="sidebar(activeMenu)">
+
+<div class="app-sidebar">
     <a href="/main/list" class="logo">M</a>
 
     <a href="/main/list"
@@ -11,25 +14,102 @@
         <i class="bi bi-speedometer2"></i>
     </a>
 
-    <a th:href="@{/main/list(type='TRADE_LOG')}"
+    <a href="#"
        class="nav-icon"
        th:classappend="${activeMenu == 'tradelog'} ? ' active' : ''"
-       title="매매일지">
+       title="매매일지"
+       onclick="openPanel('TRADE_LOG'); return false;">
         <i class="bi bi-graph-up-arrow"></i>
     </a>
 
-    <a th:href="@{/main/list(type='INSIGHT')}"
+    <a href="#"
        class="nav-icon"
        th:classappend="${activeMenu == 'insight'} ? ' active' : ''"
-       title="인사이트">
+       title="인사이트"
+       onclick="openPanel('INSIGHT'); return false;">
         <i class="bi bi-lightbulb"></i>
     </a>
 
     <div class="nav-spacer"></div>
 
-    <a href="#" class="nav-icon" title="설정">
+    <a href="#" class="nav-icon" title="설정" onclick="openSettings(); return false;">
         <i class="bi bi-gear"></i>
     </a>
 </div>
+
+<!-- 설정 오버레이 -->
+<div id="settings-overlay" class="settings-overlay" onclick="closeSettingsOnBackdrop(event)">
+    <div class="settings-modal">
+        <div class="settings-header">
+            <span class="settings-title">설정</span>
+            <button class="settings-close-btn" onclick="closeSettings()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div sec:authorize="isAuthenticated()" class="settings-section">
+            <div class="settings-section-label">계정</div>
+            <div class="settings-user-info">
+                <div class="settings-avatar">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div>
+                    <div style="font-size: 14px; font-weight: 500; color: var(--text-primary);"
+                         sec:authentication="name">사용자</div>
+                    <div style="font-size: 11px; color: var(--text-tertiary);">로그인됨</div>
+                </div>
+            </div>
+            <form th:action="@{/user/logout}" method="post" style="margin-top: 10px;">
+                <button type="submit" class="settings-menu-item danger" style="width:100%; text-align:left;">
+                    <i class="bi bi-box-arrow-right"></i> 로그아웃
+                </button>
+            </form>
+        </div>
+
+        <div sec:authorize="isAnonymous()" class="settings-section">
+            <div class="settings-section-label">계정</div>
+            <a href="/user/login" class="settings-menu-item">
+                <i class="bi bi-box-arrow-in-right"></i> 로그인
+            </a>
+            <a href="/user/join" class="settings-menu-item">
+                <i class="bi bi-person-plus"></i> 회원가입
+            </a>
+        </div>
+
+        <div sec:authorize="isAuthenticated()" class="settings-section">
+            <div class="settings-section-label">바로가기</div>
+            <a href="/post/write/form" class="settings-menu-item" onclick="closeSettings()">
+                <i class="bi bi-plus-circle"></i> 새 글 작성
+            </a>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-section-label">정보</div>
+            <div class="settings-info-row">
+                <span>버전</span><span>Phase 4</span>
+            </div>
+            <div class="settings-info-row">
+                <span>테마</span><span>다크</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="none">
+    function openSettings() {
+        document.getElementById('settings-overlay').classList.add('active');
+    }
+    function closeSettings() {
+        document.getElementById('settings-overlay').classList.remove('active');
+    }
+    function closeSettingsOnBackdrop(e) {
+        if (e.target === document.getElementById('settings-overlay')) closeSettings();
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeSettings();
+    });
+</script>
+
+</th:block>
 </body>
 </html>

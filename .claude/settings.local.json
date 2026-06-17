@@ -31,7 +31,17 @@
       "Bash(curl -s -c /tmp/cookies.txt http://localhost:8081/user/login)",
       "Bash(curl -s -b /tmp/cookies.txt \"http://localhost:8081/post/write/form\" -o /tmp/writeform.html -w \"%{http_code}\\\\n\")",
       "Bash(curl -s \"http://localhost:8081/post/detail/1\")",
-      "Bash(curl -s -b /tmp/cookies.txt \"http://localhost:8081/post/detail/1\" -o /tmp/detail1.html -w \"%{http_code}\\\\n\")"
+      "Bash(curl -s -b /tmp/cookies.txt \"http://localhost:8081/post/detail/1\" -o /tmp/detail1.html -w \"%{http_code}\\\\n\")",
+      "Bash(pkill -f MyServerApplication)",
+      "Bash(mvn spring-boot:run -q)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/main/list)",
+      "Bash(mvn spring-boot:run)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/panel/board?type=TRADE_LOG)",
+      "Bash(mvn spring-boot:run -Dspring-boot.run.profiles=local)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:8081/panel/board?type=TRADE_LOG\")",
+      "Bash(xargs kill -9)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:8081/panel/board?type=INSIGHT\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8081/post/write/form)"
     ]
   }
 }

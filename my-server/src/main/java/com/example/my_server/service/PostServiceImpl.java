@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -196,6 +198,40 @@ public class PostServiceImpl implements PostService
         }
 
         return existingPost;
+    }
+
+    @Override
+    public Map<String, Object> dashboardStats()
+    {
+        long tradeCount = postRepository.countByType(PostType.TRADE_LOG);
+        long insightCount = postRepository.countByType(PostType.INSIGHT);
+        long winCount = postRepository.countWinningTrades();
+        BigDecimal avgRate = postRepository.avgProfitRate();
+        BigDecimal maxRate = postRepository.maxProfitRate();
+        BigDecimal minRate = postRepository.minProfitRate();
+
+        String winRate = tradeCount > 0
+                ? (winCount * 100 / tradeCount) + "%"
+                : "-";
+        String avgFormatted = avgRate != null
+                ? (avgRate.signum() >= 0 ? "+" : "") + avgRate.setScale(2, RoundingMode.HALF_UP) + "%"
+                : "-";
+        String bestFormatted = maxRate != null
+                ? (maxRate.signum() >= 0 ? "+" : "") + maxRate.setScale(2, RoundingMode.HALF_UP) + "%"
+                : "-";
+        String worstFormatted = minRate != null
+                ? (minRate.signum() >= 0 ? "+" : "") + minRate.setScale(2, RoundingMode.HALF_UP) + "%"
+                : "-";
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("tradeCount", tradeCount);
+        stats.put("insightCount", insightCount);
+        stats.put("winRate", winRate);
+        stats.put("avgRate", avgFormatted);
+        stats.put("avgRateSign", avgRate != null && avgRate.signum() >= 0 ? "positive" : "negative");
+        stats.put("bestRate", bestFormatted);
+        stats.put("worstRate", worstFormatted);
+        return stats;
     }
 
     // 포스트 삭제하기

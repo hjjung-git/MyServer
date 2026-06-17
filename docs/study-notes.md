@@ -942,3 +942,36 @@ if (!StringUtils.hasText(post.getTicker()))
 ```
 
 `rejectValue("필드명", "에러코드", "메시지")`로 추가한 에러는 `th:errors="*{ticker}"`로 폼에서 그대로 출력된다. `@Valid` 검증과 수동 검증을 같은 `BindingResult`에 누적시켜 한 번에 처리할 수 있다.
+
+---
+
+## Phase 4 — Step 3.5 푸시 패널 분할 레이아웃
+
+### 왜 패널(push-panel) 방식인가
+
+사이드바 메뉴 클릭 시 전체 페이지를 교체(`/main/list?type=TRADE_LOG`)하면 대시보드 컨텍스트(차트, 워치리스트)가 사라진다. 우측에서 패널이 밀려 들어오는 방식은 메인 콘텐츠를 유지하면서 게시판을 오버레이 없이 옆에 붙인다.
+
+### Thymeleaf 프래그먼트 부분 응답 (AJAX)
+
+```
+GET /panel/board?type=TRADE_LOG  →  fragments/panel-board :: board  (HTML 조각만 반환)
+GET /panel/post/{id}             →  fragments/panel-detail :: detail
+```
+
+컨트롤러에서 `return "fragments/panel-board :: board"` 처럼 `파일::프래그먼트명` 형식으로 반환하면 Thymeleaf가 해당 `th:fragment`만 렌더링한다. 전체 페이지가 아닌 HTML 조각이 응답으로 오고, JS `fetch()`가 받아서 `innerHTML`에 주입한다.
+
+### 이벤트 위임(Event Delegation)으로 동적 콘텐츠 클릭 처리
+
+패널 내부는 `fetch()`로 교체되므로 직접 이벤트 리스너를 붙이면 교체 후 사라진다. `document.addEventListener('click', ...)` 로 상위에서 잡고, `e.target.closest('[data-panel-post]')` 처럼 data 속성으로 의도한 클릭만 걸러낸다. 동적 DOM에서 표준 패턴이다.
+
+### CSS flex push 레이아웃
+
+```css
+.app-shell  { display: flex; }
+.app-main   { flex: 1; min-width: 0; }          /* 남은 공간 모두 차지, 줄어들 수 있음 */
+.app-panel  { width: 0; overflow: hidden;
+              transition: width 0.25s ease; }    /* 닫힘 상태 */
+.app-panel.open { width: 400px; }               /* 열림 상태 */
+```
+
+`position: fixed/absolute` 없이 flex 흐름 안에서 너비가 늘어나면 `app-main`이 자동으로 압축된다. `overflow: hidden`으로 `width:0` 상태에서 내부 콘텐츠를 숨기고, `transition`으로 부드러운 슬라이드 효과를 낸다.

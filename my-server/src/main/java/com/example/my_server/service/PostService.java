@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Map;
 
 public interface PostService
 {
@@ -15,4 +17,5 @@ public interface PostService
     Post findById(Long id);
     Post updatePost(Long id, Post updatedPost, MultipartFile file) throws IOException;
     void delete(Long id);
+    Map<String, Object> dashboardStats();
 }
