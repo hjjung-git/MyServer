@@ -53,7 +53,10 @@
       "Bash(grep -n \"ANTHROPIC_API_KEY\" ~/.zshrc 2>/dev/null || echo \"없음\")",
       "Bash(echo \"\")",
       "Bash(echo \"export ANTHROPIC_API_KEY=여기에키붙여넣기\")",
-      "Bash(nano ~/.zshrc)"
+      "Bash(nano ~/.zshrc)",
+      "Bash(xargs -I{} basename {})",
+      "Skill(artifact-design)",
+      "Skill(artifact-design:*)"
     ]
   }
 }

@@ -11,7 +11,6 @@
 ![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ%20IDEA-000000?style=flat-square&logo=intellijidea&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-C71A36?style=flat-square&logo=apachemaven&logoColor=white)
 
-> NCS ICT 직무(응용SW, DB, 보안, UI/UX, IT시스템관리)를 연계하여  
 > 처음부터 끝까지 직접 구축해보는 나만의 웹 서버 프로젝트
 
 <br>
