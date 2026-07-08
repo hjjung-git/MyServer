@@ -15,6 +15,10 @@
 
 <br>
 
+![Dashboard](docs/images/dashboard.png)
+
+<br>
+
 ---
 
 ## Tech Stack
