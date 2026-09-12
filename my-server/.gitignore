@@ -39,3 +39,6 @@ logs/
 data/*.mv.db
 data/*.trace.db
 _to_delete/
+
+### Local secrets (per-machine, not shared via git) ###
+src/main/resources/application-local.properties

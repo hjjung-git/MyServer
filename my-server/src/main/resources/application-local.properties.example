@@ -1,0 +1,20 @@
+# Server Settings (Local)
+server.port=8081
+
+# Database (Local - MySQL)
+# Copy this file to application-local.properties and fill in your own local credentials.
+# application-local.properties is gitignored, so each machine keeps its own copy.
+spring.datasource.url=jdbc:mysql://localhost:3306/myserver_dev?serverTimezone=Asia/Seoul
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.username=myserver
+spring.datasource.password=CHANGE_ME
+
+# JPA (Local)
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Groq API (set GROQ_API_KEY env var to enable, free tier)
+groq.api.key=${GROQ_API_KEY:}
