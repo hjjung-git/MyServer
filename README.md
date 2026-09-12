@@ -21,6 +21,16 @@
 
 ---
 
+## Overview
+
+혼자서 기획부터 개발·배포·운영까지 전 과정을 직접 진행하는 웹 서버 프로젝트다. Spring Boot 기반으로 서버를 구축(Phase 1)한 뒤 계층형 아키텍처와 DB 이관(Phase 2), 보안 강화(Phase 3)를 거쳐 실서비스 형태(암호화폐 매매일지 플랫폼, Phase 4)로 발전시켰다.
+
+Phase 6부터는 기존 서버를 새로 만들지 않고 **브라운필드(Brownfield) 방식으로 고도화**하는 방향으로 전환했다 — 포트폴리오 웹사이트를 이 서버의 신규 도메인으로 통합하고, 프론트엔드/백엔드를 분리(React + REST API)하며, DB 운영 경험을 다각화하기 위해 관리형 AWS RDS 대신 자체 구축 MySQL로 옮기는 작업을 진행 중이다. 자세한 진행 배경과 기술적 의사결정은 [docs/phase6-study-log.md](docs/phase6-study-log.md)에 기록한다.
+
+<br>
+
+---
+
 ## Tech Stack
 
 | 분류 | 기술 |
@@ -92,6 +102,16 @@
 | Step 3 | 회원 등급 | ⬜ |
 | Step 4 | 알림 | ⬜ |
 
+### Phase 6 — Portfolio Integration & API Modernization
+
+| 단계 | 내용 | 상태 |
+| :--- | :--- | :---: |
+| Step 1 | 로컬 개발 DB 전환 (H2 → 자체 구축 MySQL) | ✅ |
+| Step 2 | Flyway 도입 (스키마 버전 관리) | ⬜ |
+| Step 3 | 기존 Controller REST API 전환 | ⬜ |
+| Step 4 | React 프론트엔드 구축 및 포트폴리오 통합 | ⬜ |
+| Step 5 | 자체 호스팅 배포 (Cloudflare Tunnel) | ⬜ |
+
 <br>
 
 ---
@@ -121,3 +141,4 @@ mvn spring-boot:run
 | [docs/phase1-server-setup.md](docs/phase1-server-setup.md) | Phase 1 상세 기록 |
 | [docs/phase2-maintenance.md](docs/phase2-maintenance.md) | Phase 2 상세 기록 |
 | [docs/phase3-security.md](docs/phase3-security.md) | Phase 3 상세 기록 |
+| [docs/phase6-study-log.md](docs/phase6-study-log.md) | Phase 6 상세 기록 (진행 중 · 공부 기록 겸용) |
