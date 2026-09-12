@@ -35,3 +35,7 @@ build/
 ### Logs ###
 logs/
 *.log
+### Local H2 database ###
+data/*.mv.db
+data/*.trace.db
+_to_delete/
