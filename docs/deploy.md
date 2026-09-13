@@ -19,8 +19,8 @@ mvn spring-boot:run
 
 ## 운영 서버 배포 (AWS EC2)
 
-> main 브랜치에 push하면 GitHub Actions가 자동으로 빌드 → 배포 → 재시작합니다.  
-> 아래 수동 배포 절차는 최초 설정 또는 긴급 상황에만 사용합니다.
+> main 브랜치에 push하면 GitHub Actions가 자동으로 빌드 → 배포 → 재시작한다.  
+> 아래 수동 배포 절차는 최초 설정 또는 긴급 상황에만 사용한다.
 
 ### 1. 빌드
 
@@ -65,7 +65,7 @@ sudo systemctl start my-server
 
 ## systemd 서비스 등록 (최초 1회)
 
-EC2 재부팅 시 Spring Boot 애플리케이션이 자동으로 실행되도록 설정합니다.
+EC2 재부팅 시 Spring Boot 애플리케이션이 자동으로 실행되도록 설정한다.
 
 ### 1. 서비스 파일 생성
 

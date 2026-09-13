@@ -23,7 +23,7 @@
 | Frontend | Thymeleaf (SSR) | React (SPA) | 동적 UI 자유도 확보 |
 | Backend | View 반환 Controller | REST API | 프론트/백엔드 분리 |
 | DB | AWS RDS MySQL | 자체 구축 MySQL | 관리형 서비스가 대신 해주던 설치·계정·권한 관리를 직접 경험 |
-| 배포 (예정) | AWS EC2 + Nginx | 자체 하드웨어 + Cloudflare Tunnel | 대기업의 자체 DB/서버 운영 방식과 유사한 경험 |
+| 배포 (예정) | AWS EC2 + Nginx | 자체 하드웨어 + Cloudflare Tunnel | 관리형 서비스 없이 인프라를 직접 소유·운영해보는 경험 |
 
 기존에 계획했던 "투자/매매일지" 확장(서비스 확장 단계의 후속)은 보류하고, 온톨로지·생성형 챗봇 프로젝트와 연계되는 시점에 재개 예정. 배포 전환은 개발이 끝난 뒤 마지막 단계에서 진행하며 현재 개발을 막지 않는다.
 
