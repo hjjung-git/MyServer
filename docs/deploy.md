@@ -1,5 +1,7 @@
 # Deployment Guide
 
+> **현재 상태**: 아래 절차는 서버 구축~서비스 확장 단계 기준(AWS EC2 + Nginx) 운영 방식이다. 아키텍처 마이그레이션 단계에서 자체 소유 하드웨어 + Cloudflare Tunnel 방식으로 전환 예정이며, 전환이 끝나면 이 문서를 갱신한다. 진행 배경은 [docs/architecture-migration-log.md](architecture-migration-log.md) 참고.
+
 ---
 
 ## 로컬 실행

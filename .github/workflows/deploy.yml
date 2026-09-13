@@ -1,9 +1,10 @@
 name: Build & Deploy
 
+# 자체 호스팅(Cloudflare Tunnel) 전환 작업이 끝날 때까지 자동 배포를 비활성화해둠.
+# EC2로의 배포 대상이 바뀔 예정이라, 배포 준비가 되면 아래를 다시 push 트리거로 되돌릴 것.
+# 그 전까지는 Actions 탭에서 수동(workflow_dispatch)으로만 실행 가능.
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

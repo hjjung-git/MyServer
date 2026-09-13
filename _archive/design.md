@@ -8,6 +8,10 @@
 
 <br>
 
+> **범위 안내**: 이 문서는 Phase 1~3 시점의 설계를 기록한다. Phase 6부터 진행 중인 아키텍처 전환(React SPA 분리, REST API, 자체 구축 MySQL)의 배경과 근거는 [docs/phase6-study-log.md](phase6-study-log.md)에 별도로 기록한다.
+
+<br>
+
 ---
 
 ## 1. Design Rationale & Trade-offs

@@ -1,4 +1,4 @@
-# MyServer Project
+# myWeb Project
 
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=java&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
@@ -23,9 +23,9 @@
 
 ## Overview
 
-혼자서 기획부터 개발·배포·운영까지 전 과정을 직접 진행하는 웹 서버 프로젝트다. Spring Boot 기반으로 서버를 구축(Phase 1)한 뒤 계층형 아키텍처와 DB 이관(Phase 2), 보안 강화(Phase 3)를 거쳐 실서비스 형태(암호화폐 매매일지 플랫폼, Phase 4)로 발전시켰다.
+혼자서 기획부터 개발·배포·운영까지 전 과정을 직접 진행하는 웹 서버 프로젝트다. Spring Boot 기반으로 서버를 구축한 뒤 계층형 아키텍처 정비와 DB 이관, 보안 강화를 거쳐 실서비스 형태(암호화폐 매매일지 플랫폼)로 발전시켰다.
 
-Phase 6부터는 기존 서버를 새로 만들지 않고 **브라운필드(Brownfield) 방식으로 고도화**하는 방향으로 전환했다 — 포트폴리오 웹사이트를 이 서버의 신규 도메인으로 통합하고, 프론트엔드/백엔드를 분리(React + REST API)하며, DB 운영 경험을 다각화하기 위해 관리형 AWS RDS 대신 자체 구축 MySQL로 옮기는 작업을 진행 중이다. 자세한 진행 배경과 기술적 의사결정은 [docs/phase6-study-log.md](docs/phase6-study-log.md)에 기록한다.
+지금은 **아키텍처 마이그레이션** 단계로, 기존 서버를 새로 만들지 않고 **브라운필드(Brownfield) 방식으로 고도화**하는 방향으로 전환했다 — 포트폴리오 웹사이트를 이 서버의 신규 도메인으로 통합하고, 프론트엔드/백엔드를 분리(React + REST API)하며, DB 운영 경험을 다각화하기 위해 관리형 AWS RDS 대신 자체 구축 MySQL로 옮기는 작업을 진행 중이다. 자세한 진행 배경과 기술적 의사결정은 [docs/architecture-migration-log.md](docs/architecture-migration-log.md)에 기록한다.
 
 <br>
 
@@ -48,7 +48,7 @@ Phase 6부터는 기존 서버를 새로 만들지 않고 **브라운필드(Brow
 
 ## Project Milestone
 
-### Phase 1 — Server Setup
+### 1. 서버 구축
 
 | 단계 | 내용 | 상태 |
 | :--- | :--- | :---: |
@@ -58,7 +58,7 @@ Phase 6부터는 기존 서버를 새로 만들지 않고 **브라운필드(Brow
 | Step 4 | 시스템 관리 (AWS EC2, Elastic IP, 도메인) | ✅ |
 | Step 5 | 보안 엔지니어링 (Nginx, HTTPS, Let's Encrypt) | ✅ |
 
-### Phase 2 — Maintenance & Operation
+### 2. 유지보수 및 운영
 
 | 단계 | 내용 | 상태 |
 | :--- | :--- | :---: |
@@ -67,7 +67,7 @@ Phase 6부터는 기존 서버를 새로 만들지 않고 **브라운필드(Brow
 | Step 3 | 사용자 인증 및 접근 제어 (Spring Security) | ✅ |
 | Step 4 | 인프라 유지보수 (CI/CD, 로그 관리) | ✅ |
 
-### Phase 3 — Security Hardening
+### 3. 보안 강화
 
 | 단계 | 내용 | 상태 |
 | :--- | :--- | :---: |
@@ -76,7 +76,7 @@ Phase 6부터는 기존 서버를 새로 만들지 않고 **브라운필드(Brow
 | Step 3 | 민감정보 외부화 (환경변수 / Secrets Manager) | ✅ |
 | Step 4 | 컨트롤러 보안 테스트 | ✅ |
 
-### Phase 4 — Service Transformation
+### 4. 서비스 확장 (매매일지 플랫폼)
 
 | 단계 | 내용 | 상태 |
 | :--- | :--- | :---: |
@@ -93,16 +93,7 @@ Phase 6부터는 기존 서버를 새로 만들지 않고 **브라운필드(Brow
 | Step 5 | 공개 / 비공개 설정 | ⬜ |
 | Step 6 | 대시보드 (통계 뷰) | ⬜ |
 
-### Phase 5 — Community Forum
-
-| 단계 | 내용 | 상태 |
-| :--- | :--- | :---: |
-| Step 1 | 댓글 시스템 | ⬜ |
-| Step 2 | 좋아요 / 북마크 | ⬜ |
-| Step 3 | 회원 등급 | ⬜ |
-| Step 4 | 알림 | ⬜ |
-
-### Phase 6 — Portfolio Integration & API Modernization
+### 5. 아키텍처 마이그레이션 (포트폴리오 통합 · API 현대화, 진행 중)
 
 | 단계 | 내용 | 상태 |
 | :--- | :--- | :---: |
@@ -135,10 +126,6 @@ mvn spring-boot:run
 
 | 문서 | 내용 |
 | :--- | :--- |
-| [docs/study-notes.md](docs/study-notes.md) | 핵심 개념 학습 정리 |
-| [docs/design.md](docs/design.md) | 기술 설계 문서 (아키텍처, 설계 결정) |
-| [docs/deploy.md](docs/deploy.md) | 배포 및 운영 절차 |
-| [docs/phase1-server-setup.md](docs/phase1-server-setup.md) | Phase 1 상세 기록 |
-| [docs/phase2-maintenance.md](docs/phase2-maintenance.md) | Phase 2 상세 기록 |
-| [docs/phase3-security.md](docs/phase3-security.md) | Phase 3 상세 기록 |
-| [docs/phase6-study-log.md](docs/phase6-study-log.md) | Phase 6 상세 기록 (진행 중 · 공부 기록 겸용) |
+| [docs/study-notes.md](docs/study-notes.md) | 핵심 개념 정리 (아키텍처 · DB · 보안 — 서버 구축~보안 강화 경험 기반) |
+| [docs/deploy.md](docs/deploy.md) | 배포 및 운영 절차 (서버 구축~서비스 확장 단계 기준) |
+| [docs/architecture-migration-log.md](docs/architecture-migration-log.md) | 아키텍처 마이그레이션 진행 기록 (결정 이유 + 진행 상황, 계속 갱신) |
