@@ -11,7 +11,7 @@
 ![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ%20IDEA-000000?style=flat-square&logo=intellijidea&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-C71A36?style=flat-square&logo=apachemaven&logoColor=white)
 
-> 처음부터 끝까지 직접 구축해보는 나만의 웹 서버 프로젝트
+> 기획부터 개발·배포·운영까지 직접 진행하며 성장시키는 개인 웹 플랫폼
 
 <br>
 
@@ -33,14 +33,18 @@
 
 ## Tech Stack
 
-| 분류 | 기술 |
-| :--- | :--- |
-| Language | Java 21 |
-| Framework | Spring Boot 4.0.0 · Spring Data JPA · Spring Security |
-| View | Thymeleaf · Bootstrap 5 |
-| Database | H2 (local) · MySQL / AWS RDS (production) |
-| Deployment | AWS EC2 · Nginx · JAR |
-| Build | Maven |
+| 분류 | 기술 | 상태 |
+| :--- | :--- | :---: |
+| Language | Java 21 | 완료 |
+| Framework | Spring Boot 4.0.0 · Spring Data JPA · Spring Security | 완료 |
+| View (레거시) | Thymeleaf · Bootstrap 5 | 완료 → React로 대체 예정 |
+| Frontend (신규) | React _(placeholder)_ | 예정 |
+| Database | H2(로컬, 레거시) · AWS RDS MySQL(운영, 레거시) · 자체 구축 MySQL(로컬 개발) | 진행 중 |
+| Deployment (레거시) | AWS EC2 · Nginx | 완료 → 자체 호스팅으로 전환 예정 |
+| Deployment (신규) | 자체 소유 하드웨어 + Cloudflare Tunnel _(placeholder)_ | 예정 |
+| Build | Maven | 완료 |
+
+레거시 항목은 서버 구축~서비스 확장 단계에서 쓰인 스택이고, 신규 항목은 아키텍처 마이그레이션 단계에서 도입 중인 스택이다. 자세한 진행 상황은 [docs/architecture-migration-log.md](docs/architecture-migration-log.md) 참고.
 
 <br>
 
