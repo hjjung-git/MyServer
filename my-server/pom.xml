@@ -77,6 +77,19 @@
 			<scope>runtime</scope>
 		</dependency>
 
+        <!-- Flyway: DB 스키마를 코드(마이그레이션 스크립트)로 버전 관리 -->
+        <!-- Spring Boot 4부터 오토컨피그가 모듈로 분리되어, flyway-core 대신
+             spring-boot-starter-flyway를 써야 마이그레이션이 실제로 동작한다.
+             flyway-mysql은 MySQL 방언 지원을 위해 별도로 필요. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
